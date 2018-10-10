@@ -5,7 +5,7 @@
 
 #### INSTALLATION
 - Install [**`Basher.cer`**](Basher.cer) into **`Local Computer > Trusted Root ...`**
-- Download the [**`Release package`**](https://github.com/vamsitp/basher/releases) and install
+- Download the [**`Release package`**](https://github.com/vamsitp/basher/releases) and install it from an Elevated CMD
 
 #### USAGE
 - Update the mandatory fields marked with **`*`** in **`Preferences`** with VSTS (a.k.a. Azure DevOps) Account/Project details
