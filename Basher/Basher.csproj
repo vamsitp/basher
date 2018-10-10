@@ -367,7 +367,7 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="Basher_TemporaryKey.pfx" />
-    <None Include="Readme.md" />
+    <None Include="Publish.md" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
