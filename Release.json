@@ -1,0 +1,8 @@
+﻿{
+  "tag_name": "1.0.1",
+  "target_commitish": "master",
+  "name": "1.0.2",
+  "body": "Second release!",
+  "draft": false,
+  "prerelease": false
+}
