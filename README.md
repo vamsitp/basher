@@ -15,6 +15,7 @@
 > **VSTS - PERSONAL ACCESS TOKEN (PAT)**: https://your-team.visualstudio.com/_details/security/tokens 
 
 #### CREDITS
+- [WINDOWS TEMPLATE STUDIO](https://marketplace.visualstudio.com/items?itemName=WASTeamAccount.WindowsTemplateStudio)
 - [MONSTER ICON](https://opengameart.org/content/enemy-game-character-dark-monster)
 - [ROCKSTAR ANIMATION](https://gfycat.com/gifs/detail/FineLeadingElephant)
 - [DINO LOGO](https://dribbble.com/shots/3064570-Unable-to-connect)
