@@ -1,0 +1,28 @@
+﻿<ContentDialog
+    x:Class="Basher.Views.FirstRunDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="345"
+    d:DesignWidth="550"
+    PrimaryButtonText="Ok">
+    <ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="ms-appx:///Assets/StoreLogo.png" Width="40" Height="40" Margin="0"/>
+                <TextBlock x:Uid="FirstRun_Title" Text="Welcome" Margin="10,5,0,0"/>
+            </StackPanel>
+        </DataTemplate>
+    </ContentDialog.TitleTemplate>
+    <ScrollViewer>
+        <StackPanel>
+            <TextBlock x:Uid="FirstRun_Body" TextWrapping="WrapWholeWords">
+                <Run>THE BUG-'BASHER'</Run><LineBreak/>
+                <Run>BASHER is a fun dashboard for all your team's bugs...</Run><LineBreak/>
+                <Run>BASHER 'shouts' on activation &amp; resolution of bugs...</Run>
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

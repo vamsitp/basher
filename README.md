@@ -1,2 +1,4 @@
-# basher
-A Fun Bug Bashing Dashboard!
+# `basher`
+> A Fun & Animated Bug Bashing Dashboard!
+
+![Snapshot](Snapshot.png)

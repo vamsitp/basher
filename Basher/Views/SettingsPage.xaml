@@ -1,0 +1,134 @@
+﻿<Page
+    x:Class="Basher.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Style="{StaticResource PageStyle}"
+    DataContext="{Binding SettingsViewModel, Source={StaticResource Locator}}"
+    xmlns:helper="using:Basher.Helpers"
+    xmlns:xaml="using:Windows.UI.Xaml"
+    mc:Ignorable="d" Loaded="Page_Loaded">
+    <Page.Resources>
+        <helper:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="ElementTheme" />
+    </Page.Resources>
+
+    <Grid Margin="{StaticResource MediumLeftRightMargin}" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel
+            x:Name="ContentArea">
+            <ScrollViewer VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled" Width="400" Height="500">
+                <StackPanel>
+                    <TextBox x:Name="VstsAccountName"
+                     Margin="24,18,24,12"
+                     PlaceholderText="VSTS Team/Account Name"
+                     Header="VSTS ACCOUNT *"
+                     MaxWidth="360"
+                     Text="{x:Bind ViewModel.Account, Mode=TwoWay}" />
+
+                    <TextBox x:Name="VstsProject"
+                    MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="VSTS Project"
+                     Header="VSTS PROJECT *"
+                     Text="{x:Bind ViewModel.Project, Mode=TwoWay}" />
+
+                    <TextBox x:Name="VstsAccessToken"
+                    MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="Get PAT at https://your-team.visualstudio.com/_details/security/tokens"
+                     Header="VSTS ACCESS TOKEN *"
+                     Text="{x:Bind ViewModel.AccessToken, Mode=TwoWay}" />
+
+                    <TextBox x:Name="CustomWiqlFilter"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="e.g.: AND [System.IterationPath] UNDER 'ProjectName\\Release1\\Sprint2'"
+                     Header="CUSTOM WIQL FILTER (OPTIONAL)"
+                     Text="{x:Bind ViewModel.CustomWiqlFilter, Mode=TwoWay}" />
+
+                    <ComboBox x:Name="CriticalityField"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     ItemsSource="{x:Bind ViewModel.Criticalities}"
+                     PlaceholderText="Severity / Priority"
+                     Header="CRITICALITY FIELD"
+                     SelectedItem="{x:Bind ViewModel.CriticalityField, Mode=TwoWay}" />
+
+                    <TextBox x:Name="SpeechLocale"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="en-US / en-IN"
+                     Header="SPEECH LOCALE"
+                     Text="{x:Bind ViewModel.SpeechLocale, Mode=TwoWay}" />
+
+                    <TextBox x:Name="SpeechRecognizerName"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="Can be REGEX. e.g.: Basher OR Bash.*"
+                     Header="SPEECH RECOGNIZER NAME (OPTIONAL)"
+                     Text="{x:Bind ViewModel.SpeechRecognizerName, Mode=TwoWay}" />
+
+                    <TextBox x:Name="BackgroundBrush"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="File-name (under User's Documents folder)"
+                     Header="BACKGROUND IMAGE (OPTIONAL)"
+                     Text="{x:Bind ViewModel.Background, Mode=TwoWay}" />
+
+                    <ComboBox x:Name="RefreshIntervalInSecs"
+                              MaxWidth="360"
+                     Margin="24,18,24,12"
+                     ItemsSource="{x:Bind ViewModel.RefreshIntervals}"
+                     SelectedItem="{x:Bind ViewModel.RefreshIntervalInSecs, Mode=TwoWay}"
+                     PlaceholderText="IN SECONDS"
+                     Header="REFRESH INTERVAL (SECONDS):" />
+
+                    <TextBox x:Name="VstsApiVersion"
+                     MaxWidth="360"
+                     Margin="24,18,24,12"
+                     PlaceholderText="4.1"
+                     Header="API VERSION"
+                     Text="{x:Bind ViewModel.ApiVersion, Mode=TwoWay}" />
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Margin="24">
+                <TextBlock
+                    Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" />
+                <!--<TextBlock
+                    x:Uid="Settings_AboutDescription"
+                    Margin="{StaticResource EightTopMargin}" />-->
+
+                <StackPanel Orientation="Horizontal">
+                    <HyperlinkButton
+                        x:Uid="Settings_PrivacyTermsLink"
+                        Margin="0 8 12 8"
+                        Command="{x:Bind ViewModel.LaunchPrivacyCommand}"/>
+
+                    <HyperlinkButton
+                        x:Uid="FeedbackHub_Link"
+                        Command="{x:Bind ViewModel.LaunchFeedbackHubCommand}"
+                        Visibility="{x:Bind ViewModel.FeedbackLinkVisibility}" />
+
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="CREDITS:" Margin="0 6 12 4" />
+
+                    <HyperlinkButton
+                        Content="Monster Icon"
+                        NavigateUri="https://opengameart.org/content/enemy-game-character-dark-monster" Margin="0 0 12 0" />
+
+                    <HyperlinkButton
+                        Content="Dino Logo"
+                        NavigateUri="https://dribbble.com/shots/3064570-Unable-to-connect" Margin="0 0 12 0"/>
+
+                    <HyperlinkButton
+                        Content="Rockstar Animation"
+                        NavigateUri="https://gfycat.com/gifs/detail/FineLeadingElephant" Margin="0 0 0 0"/>
+
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>
