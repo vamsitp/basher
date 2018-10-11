@@ -38,7 +38,11 @@
         {
             //if (e.NavigationMode == NavigationMode.New)
             //{
-            this.Vm.Initialize(() => this.PopulateBugs(true));
+            this.Vm.Initialize(() =>
+            {
+                this.SetTimer();
+                return this.PopulateBugs(true);
+            });
             this.MarqueeStoryboard.Begin();
             //}
 
