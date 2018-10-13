@@ -17,6 +17,7 @@
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Controls.Primitives;
+    using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Navigation;
 
     public sealed partial class MainPage
@@ -91,13 +92,7 @@
                 return;
             }
 
-            if (this.Vm.Colors.Count == 0)
-            {
-                this.Vm.Colors = bugs.Select(b => b.Fields.AssignedToFullName).Distinct().ToDictionary(x => x, x => this.Vm.GetRandomColor(x));
-            }
-
             var count = bugs.Count;
-
             var criticalitySuffix = App.Settings.Criticality;
             this.Vm.SetTitle(criticalitySuffix);
 
@@ -152,10 +147,10 @@
                 {
                     if (!this.Vm.Colors.ContainsKey(user))
                     {
-                        this.Vm.Colors.Add(user, this.Vm.GetRandomColor(user));
+                        this.Vm.Colors.Add(user, new SolidColorBrush(this.Vm.GetRandomColor(user)));
                     }
 
-                    this.AddBug(bug, randomLocations[i], i % 2 == 0, this.Vm.Colors[user]);
+                    this.AddBug(bug, randomLocations[i], i % 2 == 0, this.Vm.Colors[user].Color);
                     await this.PopUp(this.AssignedPopup, this.AssignedPopupText, bug.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({bug.Fields.CreatedBy}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "alarm", $"{bug.Fields.AssignedTo} has a new {criticalitySuffix}{bug.Fields.Criticality} gift: Bug {bug.Id}", loading);
                 }
             }

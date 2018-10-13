@@ -29,6 +29,7 @@
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        private static readonly SolidColorBrush WhiteColor = new SolidColorBrush(Windows.UI.Colors.White);
         private readonly IVstsService vstsService;
         private readonly NavigationServiceEx navigationService;
         private readonly IDialogServiceEx dialogService;
@@ -36,24 +37,24 @@
         private readonly SpeechService speechService;
         private bool isCtrlKeyPressed;
         private DispatcherTimer marqueeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
-        private List<KeyValuePair<string, string>> defaultMarqueeItems = new List<KeyValuePair<string, string>>
+        private List<MarqueeItem> defaultMarqueeItems = new List<MarqueeItem>
         {
-            new KeyValuePair<string, string>("PRESS".ToMarqueeKey(), "'CTRL + H' to show HELP")
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show HELP", WhiteColor)
         };
-        private List<KeyValuePair<string, string>> helpMarqueeItems = new List<KeyValuePair<string, string>>
+        private List<MarqueeItem> helpMarqueeItems = new List<MarqueeItem>
         {
-            new KeyValuePair<string, string>("DOUBLE-CLICK".ToMarqueeKey(), "ON A BUG to open it in the browser"),
-            new KeyValuePair<string, string>("HOVER".ToMarqueeKey(), "ON A BUG to view details"),
-            new KeyValuePair<string, string>("SAY".ToMarqueeKey(), "[NAME] OPEN [WORK-ITEM #] to open it in the browser"),
-            new KeyValuePair<string, string>("SAY".ToMarqueeKey(), "[NAME] STATUS / DETAILS OF [WORK-ITEM #] to show the details on screen"),
-            new KeyValuePair<string, string>("SAY".ToMarqueeKey(), "[NAME] STOP LISTENING to stop speech recognition"),
-            new KeyValuePair<string, string>("PRESS".ToMarqueeKey(), "'CTRL + S' to start listening again"),
-            new KeyValuePair<string, string>("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences"),
-            new KeyValuePair<string, string>("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh"),
-            new KeyValuePair<string, string>("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help")
+            new MarqueeItem("DOUBLE-CLICK".ToMarqueeKey(), "ON A BUG to open it in the browser", WhiteColor),
+            new MarqueeItem("HOVER".ToMarqueeKey(), "ON A BUG to view details", WhiteColor),
+            new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] OPEN [WORK-ITEM #] to open it in the browser", WhiteColor),
+            new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] STATUS / DETAILS OF [WORK-ITEM #] to show the details on screen", WhiteColor),
+            new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] STOP LISTENING to stop speech recognition", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + S' to start listening again", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help", WhiteColor)
         };
 
-        public Dictionary<string, Color> Colors = new Dictionary<string, Color>();
+        public Dictionary<string, SolidColorBrush> Colors = new Dictionary<string, SolidColorBrush>(StringComparer.OrdinalIgnoreCase);
 
         private Brush background = new SolidColorBrush(Color.FromArgb(255, 24, 24, 24));
         public Brush Background
@@ -97,8 +98,8 @@
             }
         }
 
-        private ObservableCollection<KeyValuePair<string, string>> marqueeItems;
-        public ObservableCollection<KeyValuePair<string, string>> MarqueeItems
+        private ObservableCollection<MarqueeItem> marqueeItems;
+        public ObservableCollection<MarqueeItem> MarqueeItems
         {
             get
             {
@@ -135,7 +136,7 @@
         public void Initialize(Func<Task> postInit)
         {
             this.postInit = postInit;
-            this.MarqueeItems = new ObservableCollection<KeyValuePair<string, string>>(this.helpMarqueeItems);
+            this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems);
             this.marqueeTimer.Tick += this.Timer_Tick;
             this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
             {
@@ -172,6 +173,11 @@
         {
             var ids = loading ? new List<int>() : this.Bugs?.Select(x => x.Id)?.ToList();
             this.Bugs = new ObservableCollection<WorkItem>(await this.vstsService.GetBugs(ids));
+            if (this.Colors.Count == 0)
+            {
+                this.Colors = this.Bugs.Select(b => b.Fields.AssignedToFullName).Distinct().ToDictionary(x => x, x => new SolidColorBrush(this.GetRandomColor(x)));
+            }
+
             this.SetMarqueeBugAssignements();
         }
 
@@ -207,7 +213,7 @@
 
             var color = Color.FromArgb(255, r, g, b);
             // if (Convert.ToInt32(r + g + b) > 270 && Convert.ToInt32(r + g + b) < 630 && this.colors.All(c => !c.Value.IsCloseTo(color)))
-            if (Convert.ToInt32(r) > 120 && Convert.ToInt32(g) > 120 && Convert.ToInt32(b) > 120 && Convert.ToInt32(r + g + b) < 630 && this.Colors.All(c => !c.Value.IsCloseTo(color)))
+            if (Convert.ToInt32(r) > 120 && Convert.ToInt32(g) > 120 && Convert.ToInt32(b) > 120 && Convert.ToInt32(r + g + b) < 630 && this.Colors.All(c => !c.Value.Color.IsCloseTo(color)))
             {
                 return color;
             }
@@ -272,8 +278,10 @@
 
         public void SetMarqueeBugAssignements()
         {
-            this.defaultMarqueeItems = this.defaultMarqueeItems.Union(this.Bugs?.GroupBy(b => b.Fields.AssignedTo).OrderByDescending(a => a.Count()).Select(x => new KeyValuePair<string, string>(x.Key.ToMarqueeKey(), x.Count().ToString()))).ToList();
-            this.MarqueeItems = new ObservableCollection<KeyValuePair<string, string>>(this.defaultMarqueeItems);
+            var items = this.Bugs?.GroupBy(b => (AssignedTo: b.Fields.AssignedTo, AssignedToFullName: b.Fields.AssignedToFullName)).OrderByDescending(a => a.Count());
+            var marqItems = items.Select(x => new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString(), this.Colors[x.Key.AssignedToFullName]));
+            this.defaultMarqueeItems = this.defaultMarqueeItems.Union(marqItems).ToList();
+            this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
         }
 
         public async Task SetMarqueeItems(WorkItem bug, bool speak)
@@ -281,7 +289,7 @@
             var list = bug?.GetPropertyNamesAndValues(ignoreNames: new[] { "FullName", "Criticality" });
             if (list?.Count > 0)
             {
-                this.SetMarqueeItems(list);
+                this.SetMarqueeItems(list.Select(x => new MarqueeItem(x.Key, x.Value, WhiteColor)).ToList());
                 if (speak)
                 {
                     await this.speechService.PlaySpeech($"Bug {bug.Id}, with {App.Settings.CriticalityField} {bug.Fields.Criticality}, is assigned to {bug.Fields.AssignedTo}, by {bug.Fields.CreatedBy}, and currently in {bug.Fields.State} state");
@@ -291,14 +299,14 @@
 
         public void SetMarqueeItems(string key, string value)
         {
-            this.SetMarqueeItems(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>(key, value) });
+            this.SetMarqueeItems(new List<MarqueeItem> { new MarqueeItem(key, value, WhiteColor) });
         }
 
-        public void SetMarqueeItems(List<KeyValuePair<string, string>> items)
+        public void SetMarqueeItems(List<MarqueeItem> items)
         {
             if (items?.Count > 0)
             {
-                this.MarqueeItems = new ObservableCollection<KeyValuePair<string, string>>(items);
+                this.MarqueeItems = new ObservableCollection<MarqueeItem>(items);
                 this.marqueeTimer.Start();
             }
         }
@@ -306,7 +314,7 @@
         private void Timer_Tick(object sender, object e)
         {
             this.marqueeTimer.Stop();
-            this.MarqueeItems = new ObservableCollection<KeyValuePair<string, string>>(this.defaultMarqueeItems);
+            this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
         }
 
         public void KeyUp(CoreWindow sender, KeyEventArgs e)

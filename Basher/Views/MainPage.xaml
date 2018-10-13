@@ -55,8 +55,8 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding Key}" FontWeight="Bold" Foreground="LightCyan" FontFamily="Consolas" FontSize="14" HorizontalTextAlignment="Right"/>
-                            <TextBlock Text="{Binding Value}" Grid.Column="1" Foreground="Cyan" FontFamily="Consolas" FontSize="14" TextWrapping="WrapWholeWords" HorizontalTextAlignment="Left" Margin="8 0 0 0"/>
+                            <TextBlock Text="{Binding Path=Key}" FontWeight="Bold" Foreground="{Binding Path=Color}" FontFamily="Consolas" FontSize="14" HorizontalTextAlignment="Right" />
+                            <TextBlock Text="{Binding Path=Value}" Grid.Column="1" Foreground="Cyan" FontFamily="Consolas" FontSize="14" TextWrapping="WrapWholeWords" HorizontalTextAlignment="Left" Margin="8 0 0 0"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
