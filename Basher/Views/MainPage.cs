@@ -35,7 +35,7 @@
             this.random = new Random();
         }
 
-        public virtual MainViewModel Vm => (MainViewModel)this.DataContext;
+        public virtual MainViewModel ViewModel => (MainViewModel)this.DataContext;
 
         public Storyboard MarqueeStoryboard { get; private set; }
 
@@ -64,7 +64,7 @@
 
             //if (e.NavigationMode == NavigationMode.New)
             //{
-            this.Vm.Initialize(() =>
+            this.ViewModel.Initialize(() =>
             {
                 this.SetTimer();
                 return this.PopulateWorkItems(true);
@@ -73,15 +73,15 @@
             this.MarqueeStoryboard.Begin();
             //}
 
-            CoreWindow.GetForCurrentThread().KeyDown += this.Vm.KeyDown;
-            CoreWindow.GetForCurrentThread().KeyUp += this.Vm.KeyUp;
+            CoreWindow.GetForCurrentThread().KeyDown += this.ViewModel.KeyDown;
+            CoreWindow.GetForCurrentThread().KeyUp += this.ViewModel.KeyUp;
             base.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown -= this.Vm.KeyDown;
-            CoreWindow.GetForCurrentThread().KeyUp -= this.Vm.KeyUp;
+            CoreWindow.GetForCurrentThread().KeyDown -= this.ViewModel.KeyDown;
+            CoreWindow.GetForCurrentThread().KeyUp -= this.ViewModel.KeyUp;
             base.OnNavigatingFrom(e);
         }
 
@@ -106,89 +106,89 @@
 
         private async void Timer_Tick(object sender, object e)
         {
-            await this.Vm.RefreshItems(false);
+            await this.ViewModel.RefreshItems(false);
             await this.PopulateWorkItems(false);
         }
 
         protected virtual async Task PopulateWorkItems(bool loading = false)
         {
-            var bugs = this.Vm.Items;
-            if (bugs == null)
+            var items = this.ViewModel.Items;
+            if (items == null)
             {
                 return;
             }
 
-            var count = bugs.Count;
+            var count = items.Count;
             var criticalitySuffix = App.Settings.Criticality;
-            this.Vm.SetTitle(criticalitySuffix);
+            this.ViewModel.SetTitle(criticalitySuffix);
 
             var lefts = this.ActualWidth.ToParts(count).ToList();
             var tops = this.ActualHeight.ToParts(count).ToList();
             var randomLocations = lefts.Select(x => (Left: lefts[this.random.Next(count)], Top: tops[this.random.Next(count)])).ToList();
             for (var i = 0; i < count; i++)
             {
-                var bug = bugs[i];
-                var bugControl = this.MainGrid.Children?.SingleOrDefault(x => ((WorkItem)(x as UserControl).Tag).Id.Equals(bug.Id)) as BugControl;
-                var user = bug.Fields.AssignedToFullName;
-                if (bugControl != null)
+                var item = items[i];
+                var itemControl = this.MainGrid.Children?.SingleOrDefault(x => ((WorkItem)(x as UserControl).Tag).Id.Equals(item.Id)) as ItemControl;
+                var user = item.Fields.AssignedToFullName;
+                if (itemControl != null)
                 {
-                    var prevState = (WorkItem)bugControl.Tag;
-                    if (bug.Fields.State == "Resolved" || bug.Fields.State == "Closed") // if (i % 2 == 0)
+                    var prevState = (WorkItem)itemControl.Tag;
+                    if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
                     {
-                        if (bug.Fields.State == "Resolved")
+                        if (item.Fields.State == "Resolved")
                         {
-                            user = bug.Fields.ResolvedBy;
+                            user = item.Fields.ResolvedBy;
                         }
                         else
                         {
-                            user = bug.Fields.ClosedBy;
+                            user = item.Fields.ClosedBy;
                         }
 
-                        await this.PopUp(this.ResolvedPopup, this.ResolvedPopupText, user.ToUpperInvariant() + $", YOU ROCK!\n({bug.Fields.AssignedTo}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "applause", $"{user} {bug.Fields.State}: {bug.Id}", loading);
-                        bugControl.Disappear();
-                        this.MainGrid.Children.Remove(bugControl);
-                        bugControl = null;
+                        await this.PopUp(this.ResolvedPopup, this.ResolvedPopupText, user.ToUpperInvariant() + $", YOU ROCK!\n({item.Fields.AssignedTo}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "applause", $"{user} {item.Fields.State}: {item.Id}", loading);
+                        itemControl.Disappear();
+                        this.MainGrid.Children.Remove(itemControl);
+                        itemControl = null;
                     }
                     else
                     {
                         if (!user.Equals(prevState.Fields.AssignedToFullName))
                         {
-                            bugControl.SetText(bug.GetText());
-                            await this.PopUp(this.AssignedPopup, this.AssignedPopupText, bug.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT ASSIGNED!\n({bug.Fields.ChangedBy}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "kidding", $"{bug.Fields.AssignedTo} has an assigned {criticalitySuffix}{bug.Fields.Criticality} gift: {bug.Id}", loading);
+                            itemControl.SetText(item.GetText());
+                            await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT ASSIGNED!\n({item.Fields.ChangedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "kidding", $"{item.Fields.AssignedTo} has an assigned {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
                         }
 
-                        if (!bug.Fields.Severity.Equals(prevState.Fields.Severity))
+                        if (!item.Fields.Severity.Equals(prevState.Fields.Severity))
                         {
-                            bugControl.SetCriticality(bug.Fields.Criticality);
-                            if (bug.Fields.Criticality == 1)
+                            itemControl.SetCriticality(item.Fields.Criticality);
+                            if (item.Fields.Criticality == 1)
                             {
-                                await this.PopUp(this.AssignedPopup, this.AssignedPopupText, bug.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT!\n({bug.Fields.ChangedBy}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "busy", $"{bug.Fields.AssignedTo} has one {criticalitySuffix}1 gift: {bug.Id}", loading);
+                                await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT!\n({item.Fields.ChangedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "busy", $"{item.Fields.AssignedTo} has one {criticalitySuffix}1 gift: {item.Id}", loading);
                             }
                         }
 
-                        bugControl.Tag = bug;
+                        itemControl.Tag = item;
                     }
                 }
                 else
                 {
-                    if (!this.Vm.Colors.ContainsKey(user))
+                    if (!this.ViewModel.Colors.ContainsKey(user))
                     {
-                        this.Vm.Colors.Add(user, new SolidColorBrush(this.Vm.GetRandomColor(user)));
+                        this.ViewModel.Colors.Add(user, new SolidColorBrush(this.ViewModel.GetRandomColor(user)));
                     }
 
-                    this.AddWorkItem(bug, randomLocations[i], i % 2 == 0, this.Vm.Colors[user].Color);
-                    await this.PopUp(this.AssignedPopup, this.AssignedPopupText, bug.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({bug.Fields.CreatedBy}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "alarm", $"{bug.Fields.AssignedTo} has a new {criticalitySuffix}{bug.Fields.Criticality} gift: Bug {bug.Id}", loading);
+                    this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
+                    await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: Bug {item.Id}", loading);
                 }
             }
         }
 
         protected void AddWorkItem(WorkItem bug, (double Left, double Top) randomLocation, bool flip, Color color)
         {
-            var bugControl = new BugControl(randomLocation.Left, randomLocation.Top, bug, color, this.ActualWidth, this.ActualHeight, flip)
+            var itemControl = new ItemControl(this.ViewModel, randomLocation.Left, randomLocation.Top, bug, color, this.ActualWidth, this.ActualHeight, flip)
             {
                 Tag = bug
             };
-            this.MainGrid.Children.Add(bugControl);
+            this.MainGrid.Children.Add(itemControl);
         }
 
         private void Grid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)

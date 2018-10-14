@@ -193,8 +193,8 @@
     <Compile Include="ViewModels\UserStoriesViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="ViewModels\WebViewViewModel.cs" />
-    <Compile Include="Views\BugControl.xaml.cs">
-      <DependentUpon>BugControl.xaml</DependentUpon>
+    <Compile Include="Views\ItemControl.xaml.cs">
+      <DependentUpon>ItemControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\BugsPage.xaml.cs">
       <DependentUpon>BugsPage.xaml</DependentUpon>
@@ -249,7 +249,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\BugControl.xaml">
+    <Page Include="Views\ItemControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

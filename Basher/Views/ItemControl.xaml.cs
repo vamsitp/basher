@@ -16,11 +16,12 @@
     using Windows.UI.Xaml.Media.Animation;
     using Windows.UI.Xaml.Media.Imaging;
 
-    public sealed partial class BugControl : UserControl
+    public sealed partial class ItemControl : UserControl
     {
         private const string WorkItemsApi = "_apis/wit/workItems";
         private static readonly string WorkItemEdit = $"{App.Settings.Project}/_workitems/edit";
         private static int[] times = Enumerable.Range(1, 10).ToArray();
+        private readonly MainViewModel viewModel;
         private readonly double left;
         private readonly double top;
         private readonly string text;
@@ -32,14 +33,15 @@
         private readonly double maxWidth;
         private readonly double maxHeight;
 
-        public BugControl(double left, double top, WorkItem bug, Color color, double maxWidth, double maxHeight, bool flip = false)
+        public ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
         {
-            this.Tag = bug;
+            this.Tag = item;
+            this.viewModel = viewModel;
             this.left = left;
             this.top = top;
-            this.text = bug.GetText();
+            this.text = item.GetText();
             this.flip = flip;
-            this.criticality = bug.Fields.Criticality;
+            this.criticality = item.Fields.Criticality;
             this.color = color;
             this.maxWidth = maxWidth;
             this.maxHeight = maxHeight;
@@ -47,34 +49,34 @@
             this.InitializeComponent();
         }
 
-        private async void BugControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void ItemControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri((this.Tag as WorkItem).Url.Replace(WorkItemsApi, WorkItemEdit)));
         }
 
-        private async void BugControl_Tapped(object sender, TappedRoutedEventArgs e)
+        private async void ItemControl_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            await ServiceLocator.Current.GetInstance<BugsViewModel>().SetMarqueeItems(this.Tag as WorkItem, false);
+            await this.viewModel.SetMarqueeItems(this.Tag as WorkItem, false);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             var toolTip = new ToolTip();
-            var bug = this.Tag as WorkItem;
+            var item = this.Tag as WorkItem;
             var content = new StringBuilder();
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Id), bug.Id);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.Title), bug.Fields.Title);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.CreatedBy), bug.Fields.CreatedBy);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.ChangedBy), bug.Fields.ChangedBy);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.Severity), bug.Fields.Severity);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.Priority), bug.Fields.Priority);
-            content.AppendFormat("{0}: {1}\n", nameof(bug.Fields.State), bug.Fields.State);
-            content.AppendFormat("{0}: {1}", nameof(bug.Fields.Reason), bug.Fields.Reason);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Id), item.Id);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Title), item.Fields.Title);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.CreatedBy), item.Fields.CreatedBy);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.ChangedBy), item.Fields.ChangedBy);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Severity), item.Fields.Severity);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Priority), item.Fields.Priority);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.State), item.Fields.State);
+            content.AppendFormat("{0}: {1}", nameof(item.Fields.Reason), item.Fields.Reason);
             toolTip.Content = content.ToString();
             ToolTipService.SetToolTip(this.MainControl, toolTip);
         }
 
-        private void Bug_Loaded(object sender, RoutedEventArgs e)
+        private void Item_Loaded(object sender, RoutedEventArgs e)
         {
             var img = sender as Image;
             var bitmapImage = new BitmapImage { AutoPlay = true };
@@ -129,7 +131,7 @@
 
         public void SetCriticality(int criticality)
         {
-            this.SetBitmap(this.Bug, criticality);
+            this.SetBitmap(this.Item, criticality);
             this.SetForeground(criticality);
         }
 
