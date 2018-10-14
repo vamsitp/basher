@@ -1,8 +1,8 @@
 ﻿namespace Basher.Views
 {
-    public sealed partial class BugsPage : MainPage
+    public sealed partial class UserStoriesPage : MainPage
     {
-        public BugsPage()
+        public UserStoriesPage()
         {
             this.InitializeComponent();
         }

@@ -9,6 +9,7 @@
     using Basher.Helpers;
     using Basher.Models;
     using Basher.Services;
+    using Basher.Views;
 
     using GalaSoft.MvvmLight;
     using GalaSoft.MvvmLight.Messaging;
@@ -30,18 +31,15 @@
     public class MainViewModel : ViewModelBase
     {
         private static readonly SolidColorBrush WhiteColor = new SolidColorBrush(Windows.UI.Colors.White);
-        private readonly IVstsService vstsService;
-        private readonly NavigationServiceEx navigationService;
-        private readonly IDialogServiceEx dialogService;
         private readonly RecognitionService recognitionService;
         private readonly SpeechService speechService;
         private bool isCtrlKeyPressed;
-        private DispatcherTimer marqueeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        private readonly DispatcherTimer marqueeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
         private List<MarqueeItem> defaultMarqueeItems = new List<MarqueeItem>
         {
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show HELP", WhiteColor)
         };
-        private List<MarqueeItem> helpMarqueeItems = new List<MarqueeItem>
+        private readonly List<MarqueeItem> helpMarqueeItems = new List<MarqueeItem>
         {
             new MarqueeItem("DOUBLE-CLICK".ToMarqueeKey(), "ON A BUG to open it in the browser", WhiteColor),
             new MarqueeItem("HOVER".ToMarqueeKey(), "ON A BUG to view details", WhiteColor),
@@ -59,58 +57,42 @@
         private Brush background = new SolidColorBrush(Color.FromArgb(255, 24, 24, 24));
         public Brush Background
         {
-            get
-            {
-                return this.background;
-            }
+            get => this.background;
 
-            set
-            {
-                this.Set(ref this.background, value);
-            }
+            set => this.Set(ref this.background, value);
         }
 
         private bool listening;
         public bool Listening
         {
-            get
-            {
-                return this.listening;
-            }
+            get => this.listening;
 
-            set
-            {
-                this.Set(ref this.listening, value);
-            }
+            set => this.Set(ref this.listening, value);
         }
 
         private ObservableCollection<WorkItem> bugs;
         public ObservableCollection<WorkItem> Bugs
         {
-            get
-            {
-                return this.bugs;
-            }
+            get => this.bugs;
 
-            set
-            {
-                this.Set(ref this.bugs, value);
-            }
+            set => this.Set(ref this.bugs, value);
         }
 
         private ObservableCollection<MarqueeItem> marqueeItems;
         public ObservableCollection<MarqueeItem> MarqueeItems
         {
-            get
-            {
-                return this.marqueeItems;
-            }
+            get => this.marqueeItems;
 
-            set
-            {
-                this.Set(ref this.marqueeItems, value);
-            }
+            set => this.Set(ref this.marqueeItems, value);
         }
+
+        protected IVstsService VstsService { get; }
+
+        protected NavigationServiceEx NavigationService { get; }
+
+        protected IDialogServiceEx DialogService { get; }
+
+        //protected CoreDispatcher Dispatcher { get; }
 
         public MainViewModel(
             IVstsService vstsService,
@@ -119,9 +101,10 @@
             RecognitionService recognitionService,
             SpeechService speechService)
         {
-            this.vstsService = vstsService;
-            this.navigationService = navigationService;
-            this.dialogService = dialogService;
+            //this.Dispatcher = Window.Current.Dispatcher;
+            this.VstsService = vstsService;
+            this.NavigationService = navigationService;
+            this.DialogService = dialogService;
             this.recognitionService = recognitionService;
             this.speechService = speechService;
             var appView = ApplicationView.GetForCurrentView();
@@ -136,10 +119,14 @@
         public void Initialize(Func<Task> postInit)
         {
             this.postInit = postInit;
-            this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems);
-            this.marqueeTimer.Tick += this.Timer_Tick;
+            this.marqueeTimer.Tick += this.MarqueeTimer_Tick;
             this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
             {
+                //await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                //async () =>
+                //{
+                    this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems);
+                //});
                 await this.InitializeInternal();
                 reply.Execute(true);
             });
@@ -169,10 +156,10 @@
             this.Background = new ImageBrush { ImageSource = bitmap };
         }
 
-        public async Task RefreshBugs(bool loading = false)
+        public virtual async Task RefreshBugs(bool loading = false)
         {
             var ids = loading ? new List<int>() : this.Bugs?.Select(x => x.Id)?.ToList();
-            this.Bugs = new ObservableCollection<WorkItem>(await this.vstsService.GetBugs(ids));
+            this.Bugs = new ObservableCollection<WorkItem>(await this.VstsService.GetBugs(ids));
             if (this.Colors.Count == 0)
             {
                 this.Colors = this.Bugs.Select(b => b.Fields.AssignedToFullName).Distinct().ToDictionary(x => x, x => new SolidColorBrush(this.GetRandomColor(x)));
@@ -181,7 +168,7 @@
             this.SetMarqueeBugAssignements();
         }
 
-        public void SetTitle(string criticalitySuffix)
+        public virtual void SetTitle(string criticalitySuffix)
         {
             var count = this.Bugs.Count;
             var s1 = this.Bugs.Count(b => b.Fields.Criticality == 1);
@@ -228,7 +215,7 @@
 
         public Task DisplayHelp()
         {
-            return this.dialogService.ShowMessage("START/STOP SPEECH RECOGNITION:\nCTRL + S", "HELP");
+            return this.DialogService.ShowMessage("START/STOP SPEECH RECOGNITION:\nCTRL + S", "HELP");
         }
 
         public async void KeyDown(CoreWindow sender, KeyEventArgs e)
@@ -261,9 +248,11 @@
                     case VirtualKey.H:
                         this.SetMarqueeItems(this.helpMarqueeItems);
                         break;
+                    case VirtualKey.U:
+                        await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage));
+                        break;
                     case VirtualKey.P:
                         // this.navigationService.Navigate(this.navigationService.GetNameOfRegisteredPage(typeof(SettingsPage)));
-                        // await WindowManagerService.Current.TryShowAsViewModeAsync("Settings", typeof(SettingsPage), ApplicationViewMode.Default);
                         await SettingsDisplayService.ShowSettings();
                         break;
                 }
@@ -311,7 +300,7 @@
             }
         }
 
-        private void Timer_Tick(object sender, object e)
+        private void MarqueeTimer_Tick(object sender, object e)
         {
             this.marqueeTimer.Stop();
             this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);

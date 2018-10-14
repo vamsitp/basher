@@ -30,6 +30,7 @@ namespace Basher.ViewModels
                 SimpleIoc.Default.Register<RecognitionService>();
 
                 this.Register<MainViewModel, BugsPage>();
+                this.Register<UserStoriesViewModel, UserStoriesPage>();
                 this.Register<WebViewViewModel, WebViewPage>();
                 this.Register<ChartViewModel, ChartPage>();
                 this.Register<SettingsViewModel, SettingsPage>();
@@ -47,6 +48,8 @@ namespace Basher.ViewModels
         public WebViewViewModel WebViewViewModel => ServiceLocator.Current.GetInstance<WebViewViewModel>();
 
         public MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>();
+
+        public UserStoriesViewModel UserStoriesViewModel => ServiceLocator.Current.GetInstance<UserStoriesViewModel>();
 
         public NavigationServiceEx NavigationService => ServiceLocator.Current.GetInstance<NavigationServiceEx>();
 

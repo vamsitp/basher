@@ -1,0 +1,17 @@
+﻿<views:MainPage
+    xmlns:views="using:Basher.Views"
+    x:Class="Basher.Views.UserStoriesPage"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:Basher.ViewModels"
+      xmlns:ignore="http://www.galasoft.ch/ignore"
+      xmlns:cmd="http://www.galasoft.ch/mvvmlight"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:data="using:Windows.UI.Xaml.Data"
+      mc:Ignorable="d ignore"
+      Background="{Binding Background, Mode=OneWay}"
+      DataContext="{Binding UserStoriesViewModel, Source={StaticResource Locator}}">
+</views:MainPage>

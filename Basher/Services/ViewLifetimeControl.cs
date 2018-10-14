@@ -154,7 +154,7 @@ namespace Basher.Services
             if (justReleased)
             {
                 UnregisterForEvents();
-                InternalReleased(this, null);
+                InternalReleased?.Invoke(this, null);
             }
         }
     }
