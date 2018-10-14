@@ -34,6 +34,7 @@
               <uap:FileType>.gif</uap:FileType>
               <uap:FileType>.png</uap:FileType>
               <uap:FileType>.jpg</uap:FileType>
+              <uap:FileType>.xml</uap:FileType>
             </uap:SupportedFileTypes>
           </uap:FileTypeAssociation>
         </uap:Extension>

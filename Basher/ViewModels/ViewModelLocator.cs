@@ -29,7 +29,7 @@ namespace Basher.ViewModels
                 SimpleIoc.Default.Register<RecognitionHandler>();
                 SimpleIoc.Default.Register<RecognitionService>();
 
-                this.Register<MainViewModel, MainPage>();
+                this.Register<MainViewModel, BugsPage>();
                 this.Register<WebViewViewModel, WebViewPage>();
                 this.Register<ChartViewModel, ChartPage>();
                 this.Register<SettingsViewModel, SettingsPage>();

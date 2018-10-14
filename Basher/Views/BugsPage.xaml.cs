@@ -6,85 +6,21 @@
 
     using Basher.Helpers;
     using Basher.Models;
-    using Basher.Services;
-    using Basher.ViewModels;
 
-    using CommonServiceLocator;
-
-    using Windows.UI;
-    using Windows.UI.Core;
-    using Windows.UI.ViewManagement;
-    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Controls.Primitives;
     using Windows.UI.Xaml.Media;
-    using Windows.UI.Xaml.Navigation;
 
-    public sealed partial class MainPage
+    public sealed partial class BugsPage : MainPage
     {
         private Random random = null;
-        private SpeechService speechService;
-        private DispatcherTimer timer = null;
 
-        public MainViewModel Vm => (MainViewModel)this.DataContext;
-
-        public MainPage()
+        public BugsPage()
         {
             this.InitializeComponent();
             this.random = new Random();
-            this.speechService = ServiceLocator.Current.GetInstance<SpeechService>();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            //if (e.NavigationMode == NavigationMode.New)
-            //{
-            this.Vm.Initialize(() =>
-            {
-                this.SetTimer();
-                return this.PopulateBugs(true);
-            });
-            this.MarqueeStoryboard.Begin();
-            //}
-
-            CoreWindow.GetForCurrentThread().KeyDown += this.Vm.KeyDown;
-            CoreWindow.GetForCurrentThread().KeyUp += this.Vm.KeyUp;
-            base.OnNavigatedTo(e);
-        }
-
-        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
-        {
-            CoreWindow.GetForCurrentThread().KeyDown -= this.Vm.KeyDown;
-            CoreWindow.GetForCurrentThread().KeyUp -= this.Vm.KeyUp;
-            base.OnNavigatingFrom(e);
-        }
-
-        private async Task PopUp(Popup popup, TextBlock popupText, string text, string sound, string speechText, bool loading = false)
-        {
-            if (!loading)
-            {
-                popupText.Text = text;
-                popup.IsOpen = true;
-                await this.speechService.Play(sound, speechText, loading);
-                await Task.Delay(5000);
-                popup.IsOpen = false;
-            }
-        }
-
-        private void SetTimer()
-        {
-            this.timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(App.Settings.RefreshIntervalInSecs) };
-            this.timer.Tick += this.Timer_Tick;
-            this.timer.Start();
-        }
-
-        private async void Timer_Tick(object sender, object e)
-        {
-            await this.Vm.RefreshBugs(false);
-            await this.PopulateBugs(false);
-        }
-
-        private async Task PopulateBugs(bool loading = false)
+        protected override async Task PopulateWorkItems(bool loading = false)
         {
             var bugs = this.Vm.Bugs;
             if (bugs == null)
@@ -150,25 +86,10 @@
                         this.Vm.Colors.Add(user, new SolidColorBrush(this.Vm.GetRandomColor(user)));
                     }
 
-                    this.AddBug(bug, randomLocations[i], i % 2 == 0, this.Vm.Colors[user].Color);
+                    this.AddWorkItem(bug, randomLocations[i], i % 2 == 0, this.Vm.Colors[user].Color);
                     await this.PopUp(this.AssignedPopup, this.AssignedPopupText, bug.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({bug.Fields.CreatedBy}: {criticalitySuffix}{bug.Fields.Criticality} - {bug.Id})", "alarm", $"{bug.Fields.AssignedTo} has a new {criticalitySuffix}{bug.Fields.Criticality} gift: Bug {bug.Id}", loading);
                 }
             }
-        }
-
-        private void AddBug(WorkItem bug, (double Left, double Top) randomLocation, bool flip, Color color)
-        {
-            var bugControl = new BugControl(randomLocation.Left, randomLocation.Top, bug, color, this.ActualWidth, this.ActualHeight, flip)
-            {
-                Tag = bug
-            };
-            this.MainGrid.Children.Add(bugControl);
-        }
-
-        private void Grid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
-        {
-            var appView = ApplicationView.GetForCurrentView();
-            appView.TryEnterFullScreenMode();
         }
     }
 }

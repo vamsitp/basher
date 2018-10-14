@@ -194,15 +194,16 @@
     <Compile Include="Views\BugControl.xaml.cs">
       <DependentUpon>BugControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\BugsPage.xaml.cs">
+      <DependentUpon>BugsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ChartPage.xaml.cs">
       <DependentUpon>ChartPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FirstRunDialog.xaml.cs">
       <DependentUpon>FirstRunDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Views\MainPage.cs" />
     <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
       <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
     </Compile>
@@ -247,15 +248,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\BugsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ChartPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FirstRunDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -319,6 +320,7 @@
     <Content Include="Assets\LargeTile.scale-400.png" />
     <Content Include="Assets\Logo.png" />
     <Content Include="Assets\listening.gif" />
+    <Content Include="Assets\MainPage.xml" />
     <Content Include="Assets\Rock.gif" />
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />
