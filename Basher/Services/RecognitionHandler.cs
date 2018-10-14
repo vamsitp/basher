@@ -103,7 +103,7 @@
 
         private async Task GetReponse(string key, (string Intent, string Entity) input)
         {
-            var vm = ServiceLocator.Current.GetInstance<MainViewModel>();
+            var vm = ServiceLocator.Current.GetInstance<BugsViewModel>();
             if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(input.Intent) && !string.IsNullOrWhiteSpace(input.Entity))
             {
                 switch (key)

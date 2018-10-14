@@ -100,7 +100,7 @@
         public int Priority { get; set; }
 
         [JsonIgnore]
-        public int Criticality => App.Settings.CriticalityField.Equals(nameof(this.Severity), StringComparison.OrdinalIgnoreCase) ? int.Parse(this.Severity.Split(' ').FirstOrDefault()) : this.Priority;
+        public int Criticality => App.Settings.CriticalityField.Equals(nameof(this.Severity), StringComparison.OrdinalIgnoreCase) ? int.Parse(this.Severity?.Split(' ').FirstOrDefault() ?? this.Priority.ToString()) : this.Priority;
 
         [JsonProperty(PropertyName = "System.CreatedDate")]
         public DateTimeOffset CreatedDate { get; set; }

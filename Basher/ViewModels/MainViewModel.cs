@@ -41,8 +41,8 @@
         };
         private readonly List<MarqueeItem> helpMarqueeItems = new List<MarqueeItem>
         {
-            new MarqueeItem("DOUBLE-CLICK".ToMarqueeKey(), "ON A BUG to open it in the browser", WhiteColor),
-            new MarqueeItem("HOVER".ToMarqueeKey(), "ON A BUG to view details", WhiteColor),
+            new MarqueeItem("DOUBLE-CLICK".ToMarqueeKey(), "ON A WORK-ITEM to open it in the browser", WhiteColor),
+            new MarqueeItem("HOVER".ToMarqueeKey(), "ON A WORK-ITEM to view details", WhiteColor),
             new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] OPEN [WORK-ITEM #] to open it in the browser", WhiteColor),
             new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] STATUS / DETAILS OF [WORK-ITEM #] to show the details on screen", WhiteColor),
             new MarqueeItem("SAY".ToMarqueeKey(), "[NAME] STOP LISTENING to stop speech recognition", WhiteColor),
@@ -70,12 +70,12 @@
             set => this.Set(ref this.listening, value);
         }
 
-        private ObservableCollection<WorkItem> bugs;
-        public ObservableCollection<WorkItem> Bugs
+        private ObservableCollection<WorkItem> wItems;
+        public ObservableCollection<WorkItem> Items
         {
-            get => this.bugs;
+            get => this.wItems;
 
-            set => this.Set(ref this.bugs, value);
+            set => this.Set(ref this.wItems, value);
         }
 
         private ObservableCollection<MarqueeItem> marqueeItems;
@@ -85,6 +85,8 @@
 
             set => this.Set(ref this.marqueeItems, value);
         }
+
+        protected CoreDispatcher Dispatcher { get; private set; }
 
         protected IVstsService VstsService { get; }
 
@@ -101,7 +103,7 @@
             RecognitionService recognitionService,
             SpeechService speechService)
         {
-            //this.Dispatcher = Window.Current.Dispatcher;
+            this.Dispatcher = Window.Current.Dispatcher;
             this.VstsService = vstsService;
             this.NavigationService = navigationService;
             this.DialogService = dialogService;
@@ -120,23 +122,30 @@
         {
             this.postInit = postInit;
             this.marqueeTimer.Tick += this.MarqueeTimer_Tick;
-            this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
+            if (this is BugsViewModel)
             {
-                //await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-                //async () =>
-                //{
-                    this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems);
-                //});
-                await this.InitializeInternal();
-                reply.Execute(true);
-            });
+                this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
+                {
+                    await this.InitializeInternal();
+                    reply.Execute(true);
+                });
+            }
+            else
+            {
+                this.InitializeInternal();
+            }
         }
 
         private async Task InitializeInternal()
         {
-            ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
+            if (!ApplicationView.GetForCurrentView().IsFullScreenMode)
+            {
+                ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
+            }
+
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems));
             await this.SetBackground();
-            await this.RefreshBugs(true);
+            await this.RefreshItems(true);
             await LaunchSpeechService();
 
             async Task LaunchSpeechService()
@@ -145,7 +154,7 @@
                 await this.recognitionService.Initialize();
             }
 
-            DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.postInit());
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit());
         }
 
         private async Task SetBackground()
@@ -156,25 +165,23 @@
             this.Background = new ImageBrush { ImageSource = bitmap };
         }
 
-        public virtual async Task RefreshBugs(bool loading = false)
+        public virtual async Task RefreshItems(bool loading = false)
         {
-            var ids = loading ? new List<int>() : this.Bugs?.Select(x => x.Id)?.ToList();
-            this.Bugs = new ObservableCollection<WorkItem>(await this.VstsService.GetBugs(ids));
             if (this.Colors.Count == 0)
             {
-                this.Colors = this.Bugs.Select(b => b.Fields.AssignedToFullName).Distinct().ToDictionary(x => x, x => new SolidColorBrush(this.GetRandomColor(x)));
+                this.Colors = this.Items.Select(b => b.Fields.AssignedToFullName).Distinct().ToDictionary(x => x, x => new SolidColorBrush(this.GetRandomColor(x)));
             }
 
-            this.SetMarqueeBugAssignements();
+            this.SetMarqueeAssignements();
         }
 
         public virtual void SetTitle(string criticalitySuffix)
         {
-            var count = this.Bugs.Count;
-            var s1 = this.Bugs.Count(b => b.Fields.Criticality == 1);
-            var s2 = this.Bugs.Count(b => b.Fields.Criticality == 2);
-            var s3 = this.Bugs.Count(b => b.Fields.Criticality == 3);
-            var s4 = this.Bugs.Count(b => b.Fields.Criticality == 4);
+            var count = this.Items.Count;
+            var s1 = this.Items.Count(b => b.Fields.Criticality == 1);
+            var s2 = this.Items.Count(b => b.Fields.Criticality == 2);
+            var s3 = this.Items.Count(b => b.Fields.Criticality == 3);
+            var s4 = this.Items.Count(b => b.Fields.Criticality == 4);
 
             var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
@@ -232,8 +239,8 @@
                         await this.StartStopListening(true);
                         break;
                     case VirtualKey.R:
-                        this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Bugs...");
-                        await this.RefreshBugs(true);
+                        this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Work-items...");
+                        await this.RefreshItems(true);
                         DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.postInit());
                         break;
                     case VirtualKey.L:
@@ -249,7 +256,7 @@
                         this.SetMarqueeItems(this.helpMarqueeItems);
                         break;
                     case VirtualKey.U:
-                        await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage));
+                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
                         break;
                     case VirtualKey.P:
                         // this.navigationService.Navigate(this.navigationService.GetNameOfRegisteredPage(typeof(SettingsPage)));
@@ -259,29 +266,29 @@
             }
         }
 
-        public Task SetMarqueeItems(string bugId)
+        public Task SetMarqueeItems(string workItemId)
         {
-            var bug = this.Bugs.SingleOrDefault(x => bugId.Equals(x.Id.ToString()));
-            return this.SetMarqueeItems(bug, true);
+            var workItem = this.Items.SingleOrDefault(x => workItemId.Equals(x.Id.ToString()));
+            return this.SetMarqueeItems(workItem, true);
         }
 
-        public void SetMarqueeBugAssignements()
+        public void SetMarqueeAssignements()
         {
-            var items = this.Bugs?.GroupBy(b => (AssignedTo: b.Fields.AssignedTo, AssignedToFullName: b.Fields.AssignedToFullName)).OrderByDescending(a => a.Count());
+            var items = this.Items?.GroupBy(b => (AssignedTo: b.Fields.AssignedTo, AssignedToFullName: b.Fields.AssignedToFullName)).OrderByDescending(a => a.Count());
             var marqItems = items.Select(x => new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString(), this.Colors[x.Key.AssignedToFullName]));
             this.defaultMarqueeItems = this.defaultMarqueeItems.Union(marqItems).ToList();
             this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
         }
 
-        public async Task SetMarqueeItems(WorkItem bug, bool speak)
+        public async Task SetMarqueeItems(WorkItem workItem, bool speak)
         {
-            var list = bug?.GetPropertyNamesAndValues(ignoreNames: new[] { "FullName", "Criticality" });
+            var list = workItem?.GetPropertyNamesAndValues(ignoreNames: new[] { "FullName", "Criticality" });
             if (list?.Count > 0)
             {
                 this.SetMarqueeItems(list.Select(x => new MarqueeItem(x.Key, x.Value, WhiteColor)).ToList());
                 if (speak)
                 {
-                    await this.speechService.PlaySpeech($"Bug {bug.Id}, with {App.Settings.CriticalityField} {bug.Fields.Criticality}, is assigned to {bug.Fields.AssignedTo}, by {bug.Fields.CreatedBy}, and currently in {bug.Fields.State} state");
+                    await this.speechService.PlaySpeech($"{workItem.Id}, with {App.Settings.CriticalityField} {workItem.Fields.Criticality}, is assigned to {workItem.Fields.AssignedTo}, by {workItem.Fields.CreatedBy}, and currently in {workItem.Fields.State} state");
                 }
             }
         }

@@ -10,9 +10,9 @@
 
     using Windows.UI.ViewManagement;
 
-    public class UserStoriesViewModel : MainViewModel
+    public class BugsViewModel : MainViewModel
     {
-        public UserStoriesViewModel(
+        public BugsViewModel(
                 IVstsService vstsService,
                 NavigationServiceEx navigationService,
                 IDialogServiceEx dialogService,
@@ -29,7 +29,7 @@
         public override async Task RefreshItems(bool loading = false)
         {
             var ids = loading ? new List<int>() : this.Items?.Select(x => x.Id)?.ToList();
-            this.Items = new ObservableCollection<WorkItem>(await this.VstsService.GetUserStories(ids));
+            this.Items = new ObservableCollection<WorkItem>(await this.VstsService.GetBugs(ids));
             await base.RefreshItems(loading);
         }
 

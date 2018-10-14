@@ -13,5 +13,5 @@
       xmlns:data="using:Windows.UI.Xaml.Data"
       mc:Ignorable="d ignore"
       Background="{Binding Background, Mode=OneWay}"
-      DataContext="{Binding MainViewModel, Source={StaticResource Locator}}">
+      DataContext="{Binding BugsViewModel, Source={StaticResource Locator}}">
 </views:MainPage>

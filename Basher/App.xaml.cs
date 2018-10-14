@@ -57,7 +57,7 @@
 
         private ActivationService CreateActivationService()
         {
-            return new ActivationService(this, typeof(ViewModels.MainViewModel));
+            return new ActivationService(this, typeof(ViewModels.BugsViewModel));
         }
 
         private async void App_EnteredBackground(object sender, EnteredBackgroundEventArgs e)

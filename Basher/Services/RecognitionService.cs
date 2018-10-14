@@ -166,10 +166,10 @@
             }
         }
 
-        MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>();
+        BugsViewModel ViewModel => ServiceLocator.Current.GetInstance<BugsViewModel>();
         private void SpeechRecognizer_HypothesisGenerated(SpeechRecognizer sender, SpeechRecognitionHypothesisGeneratedEventArgs args)
         {
-            DispatcherHelper.CheckBeginInvokeOnUI(() => this.MainViewModel.Listening = true);
+            DispatcherHelper.CheckBeginInvokeOnUI(() => this.ViewModel.Listening = true);
         }
 
         private void SpeechRecognizer_StateChanged(SpeechRecognizer sender, SpeechRecognizerStateChangedEventArgs args)
@@ -179,7 +179,7 @@
 
         private async void ContinuousRecognitionSession_ResultGenerated(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionResultGeneratedEventArgs args)
         {
-            DispatcherHelper.CheckBeginInvokeOnUI(() => this.MainViewModel.Listening = false);
+            DispatcherHelper.CheckBeginInvokeOnUI(() => this.ViewModel.Listening = false);
             if (args.Result.Confidence != SpeechRecognitionConfidence.Rejected)
             {
                 await this.speechHandler.Process(args.Result.Text);

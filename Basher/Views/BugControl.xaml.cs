@@ -54,7 +54,7 @@
 
         private async void BugControl_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            await ServiceLocator.Current.GetInstance<MainViewModel>().SetMarqueeItems(this.Tag as WorkItem, false);
+            await ServiceLocator.Current.GetInstance<BugsViewModel>().SetMarqueeItems(this.Tag as WorkItem, false);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

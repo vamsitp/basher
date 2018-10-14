@@ -106,13 +106,13 @@
 
         private async void Timer_Tick(object sender, object e)
         {
-            await this.Vm.RefreshBugs(false);
+            await this.Vm.RefreshItems(false);
             await this.PopulateWorkItems(false);
         }
 
         protected virtual async Task PopulateWorkItems(bool loading = false)
         {
-            var bugs = this.Vm.Bugs;
+            var bugs = this.Vm.Items;
             if (bugs == null)
             {
                 return;

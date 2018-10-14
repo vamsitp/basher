@@ -189,6 +189,7 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SchemeActivationSampleViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\BugsViewModel.cs" />
     <Compile Include="ViewModels\UserStoriesViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="ViewModels\WebViewViewModel.cs" />
