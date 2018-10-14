@@ -49,6 +49,8 @@
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + S' to start listening again", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + U' to show User-Stories window", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + B' to show the Main (Bugs) window", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help", WhiteColor)
         };
 
@@ -220,9 +222,9 @@
             return this.recognitionService.SpeechRecognitionChanged(listen);
         }
 
-        public Task DisplayHelp()
+        public void DisplayHelp()
         {
-            return this.DialogService.ShowMessage("START/STOP SPEECH RECOGNITION:\nCTRL + S", "HELP");
+            this.SetMarqueeItems(this.helpMarqueeItems);
         }
 
         public async void KeyDown(CoreWindow sender, KeyEventArgs e)
@@ -253,10 +255,13 @@
                         }
                         break;
                     case VirtualKey.H:
-                        this.SetMarqueeItems(this.helpMarqueeItems);
+                        this.DisplayHelp();
                         break;
                     case VirtualKey.U:
                         DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
+                        break;
+                    case VirtualKey.B:
+                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.SwitchToMainViewAsync());
                         break;
                     case VirtualKey.P:
                         // this.navigationService.Navigate(this.navigationService.GetNameOfRegisteredPage(typeof(SettingsPage)));

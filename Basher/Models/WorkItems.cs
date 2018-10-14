@@ -27,6 +27,15 @@
         public string Url { get; set; }
     }
 
+    public class UserStories
+    {
+        [JsonProperty(PropertyName = "count")]
+        public int Count { get; set; }
+
+        [JsonProperty(PropertyName = "value")]
+        public UserStory[] Items { get; set; }
+    }
+
     public class UserStory : WorkItem
     {
         [JsonIgnore]

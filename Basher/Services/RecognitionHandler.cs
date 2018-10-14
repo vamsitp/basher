@@ -109,7 +109,7 @@
                 switch (key)
                 {
                     case DisplayHelp:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await vm.DisplayHelp());
+                        DispatcherHelper.CheckBeginInvokeOnUI(() => vm.DisplayHelp());
                         break;
                     case StopListening:
                         DispatcherHelper.CheckBeginInvokeOnUI(async () => await vm.StartStopListening(false));

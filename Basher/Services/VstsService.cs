@@ -66,7 +66,7 @@
 
         public async Task<IList<UserStory>> GetUserStories(List<int> currentUserStoryIds)
         {
-            var userStories = new List<UserStory>();
+            var userStoriesList = new List<UserStory>();
             var apiVersion = $"api-version={ApiVersion}";
             var baseUrl = BaseUrl.EndsWith(Slash) ? BaseUrl : BaseUrl + Slash;
             var wiql = new
@@ -86,13 +86,17 @@
                 userStoryIds = userStoryIds.Union(currentUserStoryIds);
             }
 
-            foreach (var userStoryId in userStoryIds)
-            {
-                var userStory = await string.Format(CultureInfo.InvariantCulture, WorkItemUrl, userStoryId).GetAuthRequest(Project, baseUrl, Token, apiVersion)
-                    .GetJsonAsync<UserStory>()
-                    .ConfigureAwait(false);
+            var userStories = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, string.Join(",", userStoryIds).Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
+                        .GetJsonAsync<UserStories>()
+                        .ConfigureAwait(false);
 
-                var taskIds = response.Where(x => x.SelectToken("source.id")?.Value<int>() == userStoryId).Select(x => x.SelectToken(".target.id").Value<int>());
+            foreach (var userStory in userStories.Items)
+            {
+                // var userStory = await string.Format(CultureInfo.InvariantCulture, WorkItemUrl, userStoryId).GetAuthRequest(Project, baseUrl, Token, apiVersion)
+                //     .GetJsonAsync<UserStory>()
+                //     .ConfigureAwait(false);
+
+                var taskIds = response.Where(x => x.SelectToken("source.id")?.Value<int>() == userStory.Id).Select(x => x.SelectToken(".target.id").Value<int>());
                 var joinedIds = string.Join(",", taskIds);
                 if (string.IsNullOrWhiteSpace(joinedIds))
                 {
@@ -104,11 +108,11 @@
                     .ConfigureAwait(false);
 
                 userStory.Tasks = tasks.Items;
-                userStories.Add(userStory);
+                userStoriesList.Add(userStory);
             }
 
 
-            return userStories;
+            return userStoriesList;
         }
     }
 }

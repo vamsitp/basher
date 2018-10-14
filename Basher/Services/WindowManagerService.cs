@@ -57,6 +57,11 @@ namespace Basher.Services
             return viewControl;
         }
 
+        public async Task SwitchToMainViewAsync()
+        {
+            await ApplicationViewSwitcher.SwitchAsync(this.MainViewId);
+        }
+
         private async Task<ViewLifetimeControl> CreateViewLifetimeControlAsync(string windowTitle, Type pageType)
         {
             ViewLifetimeControl viewControl = null;
