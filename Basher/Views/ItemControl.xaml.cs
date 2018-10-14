@@ -30,11 +30,13 @@
         private readonly Color color;
 
         private string animationState = Extensions.Playing;
+        private bool isBug;
         private readonly double maxWidth;
         private readonly double maxHeight;
 
         public ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
         {
+            this.isBug = viewModel is BugsViewModel;
             this.Tag = item;
             this.viewModel = viewModel;
             this.left = left;
@@ -82,11 +84,13 @@
             var bitmapImage = new BitmapImage { AutoPlay = true };
             img.Source = bitmapImage;
             this.SetBitmap(img, this.criticality);
-            var width = (5 * (24 / this.criticality) + (32 / this.criticality));
-            img.Width = bitmapImage.DecodePixelWidth = width;
+            var width = 60;
+            if (this.isBug)
+            {
+                width = (5 * (24 / this.criticality) + (32 / this.criticality));
+            }
 
-            //this.CircularBorder.Width = img.ActualWidth + 100;
-            //this.CircularBorder.CornerRadius = new CornerRadius(img.ActualHeight + 100);
+            img.Width = bitmapImage.DecodePixelWidth = width;
         }
 
         private void AssignedTo_Loaded(object sender, RoutedEventArgs e)
@@ -155,7 +159,8 @@
         {
             var suffix = this.GetSuffix(criticality);
             var bitmap = (img.Source as BitmapImage);
-            bitmap.UriSource = new Uri($"ms-appx:///Assets/Bug{suffix}.gif");
+            var prefix = this.isBug ? "Bug" : "UserStory";
+            bitmap.UriSource = new Uri($"ms-appx:///Assets/{prefix}{suffix}.gif");
         }
 
         private string GetSuffix(int criticality)

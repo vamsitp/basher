@@ -304,16 +304,6 @@
     <Content Include="Assets\Bug2.gif" />
     <Content Include="Assets\Bug3.gif" />
     <Content Include="Assets\Bug4.gif" />
-    <Content Include="Assets\Bug6 %281%29.gif" />
-    <Content Include="Assets\Bug6 %2810%29.gif" />
-    <Content Include="Assets\Bug6 %2811%29.gif" />
-    <Content Include="Assets\Bug6 %282%29.gif" />
-    <Content Include="Assets\Bug6 %283%29.gif" />
-    <Content Include="Assets\Bug6 %284%29.gif" />
-    <Content Include="Assets\Bug6 %285%29.gif" />
-    <Content Include="Assets\Bug6 %287%29.gif" />
-    <Content Include="Assets\Bug6 %288%29.gif" />
-    <Content Include="Assets\Bug6 %289%29.gif" />
     <Content Include="Assets\bugle.mp3" />
     <Content Include="Assets\Bug_4.gif" />
     <Content Include="Assets\Bug_4_.gif" />
@@ -364,6 +354,10 @@
     <Content Include="Assets\StoreLogo.scale-150.png" />
     <Content Include="Assets\StoreLogo.scale-200.png" />
     <Content Include="Assets\StoreLogo.scale-400.png" />
+    <Content Include="Assets\UserStory1.gif" />
+    <Content Include="Assets\UserStory2.gif" />
+    <Content Include="Assets\UserStory3.gif" />
+    <Content Include="Assets\UserStory4.gif" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />

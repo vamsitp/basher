@@ -157,7 +157,7 @@
                             await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT ASSIGNED!\n({item.Fields.ChangedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "kidding", $"{item.Fields.AssignedTo} has an assigned {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
                         }
 
-                        if (!item.Fields.Severity.Equals(prevState.Fields.Severity))
+                        if (item.Fields.Severity != null && !item.Fields.Severity.Equals(prevState.Fields.Severity))
                         {
                             itemControl.SetCriticality(item.Fields.Criticality);
                             if (item.Fields.Criticality == 1)

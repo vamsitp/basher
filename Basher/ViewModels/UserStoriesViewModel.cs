@@ -41,7 +41,7 @@
             var s3 = this.Items.Count(b => b.Fields.Priority == 3);
             var s4 = this.Items.Count(b => b.Fields.Priority == 4);
 
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / US = {count} / P1 = {s1} / P2 = {s2} / P3 = {s3} / P4 = {s4}";
+            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / USER STORIES = {count} / P1 = {s1} / P2 = {s2} / P3 = {s3} / P4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
         }
