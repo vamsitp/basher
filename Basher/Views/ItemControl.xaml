@@ -11,7 +11,7 @@
 
     <Canvas>
         <StackPanel Orientation="Vertical" Name="MainControl" Loaded="MainControl_Loaded">
-            <TextBlock Name="Age" Foreground="WhiteSmoke" TextWrapping="NoWrap" HorizontalAlignment="Center" HorizontalTextAlignment="Right" FontWeight="Bold" Loaded="Age_Loaded" />
+            <TextBlock Name="Age" Foreground="WhiteSmoke" TextWrapping="NoWrap" HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontWeight="SemiBold" Loaded="Age_Loaded" />
             <Image Name="Item" HorizontalAlignment="Center" CacheMode="BitmapCache" Loaded="Item_Loaded" />
             <TextBlock Name="AssignedTo" Foreground="White" TextWrapping="WrapWholeWords" HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontWeight="Bold" Loaded="AssignedTo_Loaded"/>
         </StackPanel>

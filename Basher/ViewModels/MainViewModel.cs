@@ -287,7 +287,7 @@
 
         public async Task SetMarqueeItems(WorkItem workItem, bool speak)
         {
-            var list = workItem?.GetPropertyNamesAndValues(ignoreNames: new[] { "FullName", "Criticality" });
+            var list = workItem?.GetPropertyNamesAndValues(ignoreNames: new[] { "FullName", "Criticality", "Tasks" });
             if (list?.Count > 0)
             {
                 this.SetMarqueeItems(list.Select(x => new MarqueeItem(x.Key, x.Value, WhiteColor)).ToList());

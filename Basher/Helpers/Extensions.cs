@@ -189,16 +189,13 @@
         public static List<KeyValuePair<string, string>> GetPropertyNamesAndValues(this object obj, bool nameUpperCase = true, string nameSuffix = " > ", params string[] ignoreNames)
         {
             var list = new List<KeyValuePair<string, string>>();
-            foreach (var pi in obj?.GetType()?.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
+            foreach (var pi in obj?.GetType()?.GetProperties(BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.Where(x => !ignoreNames.Any(x.Name.Contains)))
             {
                 var t = pi.PropertyType;
                 if (t.IsPrimitive || t == typeof(decimal) || t == typeof(string) || t == typeof(DateTimeOffset))
                 {
-                    if (!ignoreNames.Any(pi.Name.Contains))
-                    {
-                        var name = pi.Name.ToMarqueeKey(nameUpperCase, nameSuffix);
-                        list.Add(new KeyValuePair<string, string>(name, pi.GetValue(obj, null)?.ToString() ?? string.Empty));
-                    }
+                    var name = pi.Name.ToMarqueeKey(nameUpperCase, nameSuffix);
+                    list.Add(new KeyValuePair<string, string>(name, pi.GetValue(obj, null)?.ToString() ?? string.Empty));
                 }
                 else
                 {

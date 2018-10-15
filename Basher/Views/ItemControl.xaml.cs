@@ -21,6 +21,11 @@
         private const string WorkItemsApi = "_apis/wit/workItems";
         private static readonly string WorkItemEdit = $"{App.Settings.Project}/_workitems/edit";
         private static int[] times = Enumerable.Range(1, 10).ToArray();
+
+        public WorkItem WorkItem { get; }
+
+        public IList<WorkItem> ActiveTasks => (this.WorkItem as UserStory).Tasks.Where(x => !x.Fields.State.Equals("Removed")).ToList();
+
         private readonly MainViewModel viewModel;
         private readonly double left;
         private readonly double top;
@@ -38,6 +43,7 @@
         {
             this.isBug = viewModel is BugsViewModel;
             this.Tag = item;
+            this.WorkItem = item;
             this.viewModel = viewModel;
             this.left = left;
             this.top = top;
@@ -53,18 +59,18 @@
 
         private async void ItemControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri((this.Tag as WorkItem).Url.Replace(WorkItemsApi, WorkItemEdit)));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri(this.WorkItem.Url.Replace(WorkItemsApi, WorkItemEdit)));
         }
 
         private async void ItemControl_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            await this.viewModel.SetMarqueeItems(this.Tag as WorkItem, false);
+            await this.viewModel.SetMarqueeItems(this.WorkItem, false);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             var toolTip = new ToolTip();
-            var item = this.Tag as WorkItem;
+            var item = this.WorkItem;
             var content = new StringBuilder();
             content.AppendFormat("{0}: {1}\n", nameof(item.Id), item.Id);
             content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Title), item.Fields.Title);
@@ -157,6 +163,27 @@
 
         private void SetBitmap(Image img, int criticality)
         {
+            if (!this.isBug)
+            {
+                var (original, completed, remaining) = this.GetWork();
+                if (remaining == 0)
+                {
+                    criticality = 4;
+                }
+                else if (completed == 0)
+                {
+                    criticality = 1;
+                }
+                else if (remaining > completed)
+                {
+                    criticality = 2;
+                }
+                else
+                {
+                    criticality = 3;
+                }
+            }
+
             var suffix = this.GetSuffix(criticality);
             var bitmap = (img.Source as BitmapImage);
             var prefix = this.isBug ? "Bug" : "UserStory";
@@ -171,20 +198,53 @@
 
         private void Age_Loaded(object sender, RoutedEventArgs e)
         {
-            var age = DateTimeOffset.Now.Subtract((this.Tag as WorkItem).Fields.CreatedDate).Days;
-            this.Age.Text = age.ToString() + "d";
-            if (age > 7 && age <= 14)
+            if (this.isBug)
             {
-                this.Age.Foreground = new SolidColorBrush(Colors.DarkSalmon);
+                var item = this.WorkItem;
+                var age = DateTimeOffset.Now.Subtract(item.Fields.CreatedDate).Days;
+                this.Age.Text = age.ToString() + "d";
+                if (age > 7 && age <= 14)
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.DarkSalmon);
+                }
+                else if (age > 14 && age <= 30)
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.Orange);
+                }
+                else if (age > 30)
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.OrangeRed);
+                }
             }
-            else if (age > 14 && age <= 30)
+            else
             {
-                this.Age.Foreground = new SolidColorBrush(Colors.Orange);
+                var activeTasks = this.ActiveTasks;
+                var allTasks = activeTasks.Count;
+                var closedTasks = activeTasks.Count(x => x.Fields.State.Equals("Closed"));
+                var (original, completed, remaining) = this.GetWork();
+                this.Age.Text = $"{closedTasks}C / {allTasks}T" + Environment.NewLine + $"{completed}C, {remaining}R / {original}H";
+                if (closedTasks == allTasks)
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.PaleGreen);
+                }
+                else if (closedTasks >= allTasks / 2)
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.Orange);
+                }
+                else
+                {
+                    this.Age.Foreground = new SolidColorBrush(Colors.OrangeRed);
+                }
             }
-            else if (age > 30)
-            {
-                this.Age.Foreground = new SolidColorBrush(Colors.OrangeRed);
-            }
+        }
+
+        private (float Original, float Completed, float Remaining) GetWork()
+        {
+            var activeTasks = this.ActiveTasks;
+            var original = activeTasks.Sum(x => x.Fields.OriginalEstimate);
+            var completed = activeTasks.Sum(x => x.Fields.CompletedWork);
+            var remaining = activeTasks.Sum(x => x.Fields.RemainingWork);
+            return (original, completed, remaining);
         }
     }
 }
