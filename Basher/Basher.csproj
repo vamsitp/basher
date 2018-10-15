@@ -185,16 +185,22 @@
     <Compile Include="Services\SettingsDisplayService.cs" />
     <Compile Include="Services\WhatsNewDisplayService.cs" />
     <Compile Include="Services\WindowManagerService.cs" />
+    <Compile Include="ViewModels\BugViewModel.cs" />
+    <Compile Include="ViewModels\ItemViewModel.cs" />
     <Compile Include="ViewModels\ChartViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SchemeActivationSampleViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\BugsViewModel.cs" />
     <Compile Include="ViewModels\UserStoriesViewModel.cs" />
+    <Compile Include="ViewModels\UserStoryViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="ViewModels\WebViewViewModel.cs" />
-    <Compile Include="Views\ItemControl.xaml.cs">
-      <DependentUpon>ItemControl.xaml</DependentUpon>
+    <Compile Include="Views\UserStoryControl.xaml.cs">
+      <DependentUpon>UserStoryControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BugControl.xaml.cs">
+      <DependentUpon>BugControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\BugsPage.xaml.cs">
       <DependentUpon>BugsPage.xaml</DependentUpon>
@@ -205,6 +211,7 @@
     <Compile Include="Views\FirstRunDialog.xaml.cs">
       <DependentUpon>FirstRunDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ItemControl.cs" />
     <Compile Include="Views\MainPage.cs" />
     <Compile Include="Views\SchemeActivationSamplePage.xaml.cs">
       <DependentUpon>SchemeActivationSamplePage.xaml</DependentUpon>
@@ -249,7 +256,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ItemControl.xaml">
+    <Page Include="Views\UserStoryControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\BugControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -311,6 +322,7 @@
     <Content Include="Assets\closed.mp3" />
     <Content Include="Assets\Dino.gif" />
     <Content Include="Assets\inquisitive.mp3" />
+    <Content Include="Assets\ItemControl.xml" />
     <Content Include="Assets\kidding.mp3" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
@@ -319,7 +331,10 @@
     <Content Include="Assets\LargeTile.scale-400.png" />
     <Content Include="Assets\Logo.png" />
     <Content Include="Assets\listening.gif" />
-    <Content Include="Assets\MainPage.xml" />
+    <Content Include="Assets\MainPage.xml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Assets\Rock.gif" />
     <Content Include="Assets\SmallTile.scale-100.png" />
     <Content Include="Assets\SmallTile.scale-125.png" />

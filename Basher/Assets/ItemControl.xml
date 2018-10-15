@@ -1,0 +1,9 @@
+﻿<Canvas
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel Orientation="Vertical" Name="MainControl">
+    <TextBlock Name="Age" Foreground="WhiteSmoke" TextWrapping="NoWrap" HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontWeight="SemiBold" />
+    <Image Name="Item" HorizontalAlignment="Center" CacheMode="BitmapCache" />
+    <TextBlock Name="AssignedTo" Foreground="White" TextWrapping="WrapWholeWords" HorizontalAlignment="Center" HorizontalTextAlignment="Center" FontWeight="Bold" />
+  </StackPanel>
+</Canvas>

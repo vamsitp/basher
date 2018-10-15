@@ -176,18 +176,25 @@
                         this.ViewModel.Colors.Add(user, new SolidColorBrush(this.ViewModel.GetRandomColor(user)));
                     }
 
-                    this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
-                    await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: Bug {item.Id}", loading);
+                    await this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
+                    await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
                 }
             }
         }
 
-        protected void AddWorkItem(WorkItem bug, (double Left, double Top) randomLocation, bool flip, Color color)
+        protected async Task AddWorkItem(WorkItem workItem, (double Left, double Top) randomLocation, bool flip, Color color)
         {
-            var itemControl = new ItemControl(this.ViewModel, randomLocation.Left, randomLocation.Top, bug, color, this.ActualWidth, this.ActualHeight, flip)
+            ItemControl itemControl = null;
+            if (workItem is UserStory)
             {
-                Tag = bug
-            };
+                itemControl = new UserStoryControl(this.ViewModel, randomLocation.Left, randomLocation.Top, workItem, color, this.ActualWidth, this.ActualHeight, flip);
+            }
+            else
+            {
+                itemControl = new BugControl(this.ViewModel, randomLocation.Left, randomLocation.Top, workItem, color, this.ActualWidth, this.ActualHeight, flip);
+            }
+
+            await itemControl.Initialize();
             this.MainGrid.Children.Add(itemControl);
         }
 

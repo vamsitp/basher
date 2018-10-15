@@ -1,0 +1,12 @@
+﻿<views:ItemControl
+    xmlns:views="using:Basher.Views"
+    x:Class="Basher.Views.BugControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Basher"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Loaded="UserControl_Loaded" DoubleTapped="ItemControl_DoubleTapped" Tapped="ItemControl_Tapped"
+    DataContext="{Binding BugViewModel, Source={StaticResource Locator}}">
+</views:ItemControl>
