@@ -35,13 +35,8 @@
 
         public override void SetTitle(string criticalitySuffix)
         {
-            var count = this.Items.Count;
-            var s1 = this.Items.Count(b => b.Fields.Priority == 1);
-            var s2 = this.Items.Count(b => b.Fields.Priority == 2);
-            var s3 = this.Items.Count(b => b.Fields.Priority == 3);
-            var s4 = this.Items.Count(b => b.Fields.Priority == 4);
-
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS = {count} / P1 = {s1} / P2 = {s2} / P3 = {s3} / P4 = {s4}";
+            var (count, s1, s2, s3, s4) = this.GetCounts();
+            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
         }

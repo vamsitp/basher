@@ -132,6 +132,7 @@
                 var user = item.Fields.AssignedToFullName;
                 if (itemControl != null)
                 {
+                    this.ReAnimateItem(itemControl, randomLocations[i]);
                     var prevState = (WorkItem)itemControl.Tag;
                     if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
                     {
@@ -180,6 +181,11 @@
                     await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
                 }
             }
+        }
+
+        protected void ReAnimateItem(ItemControl itemControl, (double Left, double Top) randomLocation)
+        {
+            itemControl.Animate(randomLocation.Left, randomLocation.Top, this.ActualWidth, this.ActualHeight);
         }
 
         protected async Task AddWorkItem(WorkItem workItem, (double Left, double Top) randomLocation, bool flip, Color color)

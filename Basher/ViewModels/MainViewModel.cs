@@ -243,7 +243,7 @@
                     case VirtualKey.R:
                         this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Work-items...");
                         await this.RefreshItems(true);
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.postInit());
+                        await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit());
                         break;
                     case VirtualKey.L:
                         this.SetMarqueeItems("OPENING".ToMarqueeKey(), "Log file...");
@@ -324,6 +324,16 @@
             {
                 this.isCtrlKeyPressed = false;
             }
+        }
+
+        protected (int Total, int P1, int P2, int P3, int P4) GetCounts()
+        {
+            var count = this.Items.Count;
+            var s1 = this.Items.Count(b => b.Fields.Criticality == 1);
+            var s2 = this.Items.Count(b => b.Fields.Criticality == 2);
+            var s3 = this.Items.Count(b => b.Fields.Criticality == 3);
+            var s4 = this.Items.Count(b => b.Fields.Criticality == 4);
+            return (count, s1, s2, s3, s4);
         }
     }
 }
