@@ -1,5 +1,6 @@
 ﻿namespace Basher.ViewModels
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -44,6 +45,12 @@
             var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / USER STORIES = {count} / P1 = {s1} / P2 = {s2} / P3 = {s3} / P4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
+        }
+
+        public override async Task Initialize(Func<Task> postInit)
+        {
+            await base.Initialize(postInit);
+            await this.InitializeInternal(false);
         }
     }
 }

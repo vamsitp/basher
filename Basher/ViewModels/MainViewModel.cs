@@ -50,7 +50,6 @@
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + U' to show User-Stories window", WhiteColor),
-            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + B' to show the Main (Bugs) window", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help", WhiteColor)
         };
 
@@ -120,27 +119,16 @@
         }
 
         private Func<Task> postInit;
-        public void Initialize(Func<Task> postInit)
+        public virtual Task Initialize(Func<Task> postInit)
         {
             this.postInit = postInit;
             this.marqueeTimer.Tick += this.MarqueeTimer_Tick;
-            if (this is BugsViewModel)
-            {
-                this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
-                {
-                    await this.InitializeInternal();
-                    reply.Execute(true);
-                });
-            }
-            else
-            {
-                this.InitializeInternal();
-            }
+            return Task.CompletedTask;
         }
 
-        private async Task InitializeInternal()
+        protected async Task InitializeInternal(bool launchFullscreen)
         {
-            if (!ApplicationView.GetForCurrentView().IsFullScreenMode)
+            if (launchFullscreen && !ApplicationView.GetForCurrentView().IsFullScreenMode)
             {
                 ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
             }
@@ -167,7 +155,7 @@
             this.Background = new ImageBrush { ImageSource = bitmap };
         }
 
-        public virtual async Task RefreshItems(bool loading = false)
+        public virtual Task RefreshItems(bool loading = false)
         {
             if (this.Colors.Count == 0)
             {
@@ -175,6 +163,7 @@
             }
 
             this.SetMarqueeAssignements();
+            return Task.CompletedTask;
         }
 
         public virtual void SetTitle(string criticalitySuffix)
@@ -258,10 +247,10 @@
                         this.DisplayHelp();
                         break;
                     case VirtualKey.U:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
-                        break;
-                    case VirtualKey.B:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.SwitchToMainViewAsync());
+                        if (WindowManagerService.Current.SecondaryViews.Count == 0)
+                        {
+                            DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
+                        }
                         break;
                     case VirtualKey.P:
                         // this.navigationService.Navigate(this.navigationService.GetNameOfRegisteredPage(typeof(SettingsPage)));

@@ -4,10 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+
     using Basher.Helpers;
     using Basher.Models;
     using Basher.ViewModels;
-    using CommonServiceLocator;
+
     using Windows.UI;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -27,8 +28,6 @@
         public IList<WorkItem> ActiveTasks => (this.WorkItem as UserStory).Tasks.Where(x => !x.Fields.State.Equals("Removed")).ToList();
 
         private readonly MainViewModel viewModel;
-        private readonly double left;
-        private readonly double top;
         private readonly string text;
         private readonly bool flip;
         private readonly int criticality;
@@ -36,8 +35,10 @@
 
         private string animationState = Extensions.Playing;
         private bool isBug;
-        private readonly double maxWidth;
-        private readonly double maxHeight;
+        private double left;
+        private double top;
+        private double maxWidth;
+        private double maxHeight;
 
         public ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
         {
@@ -104,13 +105,25 @@
             this.SetText(this.text);
         }
 
-        private void MainControl_Loaded(object sender, RoutedEventArgs e)
+        protected void MainControl_Loaded(object sender, RoutedEventArgs e)
         {
-            // this.MainControl.Tag = Playing;
+            this.Animate();
+        }
+
+        public void Animate(double left, double top, double width, double height)
+        {
+            this.left = left;
+            this.top = top;
+            this.maxWidth = width;
+            this.maxHeight = height;
+            this.Animate();
+        }
+
+        private void Animate()
+        {
             this.MainControl.SetValue(Canvas.LeftProperty, this.left);
             this.MainControl.SetValue(Canvas.TopProperty, this.top);
             this.MainControl.Animate(times, this.maxWidth, this.maxHeight);
-            // this.MainControl.Tapped += this.MainControl_Tapped;
         }
 
         private void MainControl_Tapped(object sender, TappedRoutedEventArgs e)
