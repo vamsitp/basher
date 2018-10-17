@@ -235,7 +235,7 @@
                 var allTasks = activeTasks.Count;
                 var closedTasks = activeTasks.Count(x => x.Fields.State.Equals("Closed"));
                 var (original, completed, remaining) = this.GetWork();
-                this.Age.Text = $"{closedTasks}C / {allTasks}T" + Environment.NewLine + $"{completed}C, {remaining}R / {original}H";
+                this.Age.Text = $"{closedTasks}C / {allTasks}T" + Environment.NewLine + $"{completed}C, {remaining}R / {original}O";
                 if (closedTasks == allTasks)
                 {
                     this.Age.Foreground = new SolidColorBrush(Colors.PaleGreen);

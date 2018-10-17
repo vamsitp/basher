@@ -47,7 +47,7 @@
             appView.Title = title;
         }
 
-        public override async Task Initialize(Func<Task> postInit)
+        public override async Task Initialize(Func<bool, Task> postInit)
         {
             await base.Initialize(postInit);
             this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>

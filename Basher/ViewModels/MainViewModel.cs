@@ -50,6 +50,7 @@
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + U' to show User-Stories window", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + L' to open the log file", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help", WhiteColor)
         };
 
@@ -118,8 +119,8 @@
             appView.TitleBar.ButtonForegroundColor = Windows.UI.Colors.White;
         }
 
-        private Func<Task> postInit;
-        public virtual Task Initialize(Func<Task> postInit)
+        private Func<bool, Task> postInit;
+        public virtual Task Initialize(Func<bool, Task> postInit)
         {
             this.postInit = postInit;
             this.marqueeTimer.Tick += this.MarqueeTimer_Tick;
@@ -144,7 +145,7 @@
                 await this.recognitionService.Initialize();
             }
 
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit());
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(false));
         }
 
         private async Task SetBackground()
@@ -232,7 +233,7 @@
                     case VirtualKey.R:
                         this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Work-items...");
                         await this.RefreshItems(true);
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.postInit());
+                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.postInit(true));
                         break;
                     case VirtualKey.L:
                         this.SetMarqueeItems("OPENING".ToMarqueeKey(), "Log file...");
@@ -269,9 +270,22 @@
         public void SetMarqueeAssignements()
         {
             var items = this.Items?.GroupBy(b => (AssignedTo: b.Fields.AssignedTo, AssignedToFullName: b.Fields.AssignedToFullName)).OrderByDescending(a => a.Count());
-            var marqItems = items.Select(x => new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString(), this.Colors[x.Key.AssignedToFullName]));
+            var marqItems = items.Select(this.GetMarqueeItem);
             this.defaultMarqueeItems = this.defaultMarqueeItems.Union(marqItems).ToList();
             this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
+        }
+
+        private MarqueeItem GetMarqueeItem(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
+        {
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString());
+            var assignedTo = x.Key.AssignedToFullName;
+            if (!this.Colors.ContainsKey(assignedTo))
+            {
+                this.Colors.Add(assignedTo, new SolidColorBrush(this.GetRandomColor(assignedTo)));
+            }
+
+            item.Color = this.Colors[assignedTo];
+            return item;
         }
 
         public async Task SetMarqueeItems(WorkItem workItem, bool speak)

@@ -66,10 +66,10 @@
 
             //if (e.NavigationMode == NavigationMode.New)
             //{
-            await this.ViewModel.Initialize(() =>
+            await this.ViewModel.Initialize(reanimate =>
             {
                 this.SetTimer();
-                return this.PopulateWorkItems(true);
+                return this.PopulateWorkItems(true, reanimate);
             });
 
             this.MarqueeStoryboard.Begin();
@@ -125,7 +125,7 @@
             await this.PopulateWorkItems(false);
         }
 
-        protected virtual async Task PopulateWorkItems(bool loading = false)
+        protected virtual async Task PopulateWorkItems(bool loading = false, bool reanimate = false)
         {
             var items = this.ViewModel.Items;
             if (items == null)
@@ -144,7 +144,11 @@
                 var user = item.Fields.AssignedToFullName;
                 if (itemControl != null)
                 {
-                    this.ReAnimateItem(itemControl, randomLocations[i]);
+                    if (reanimate)
+                    {
+                        this.ReAnimateItem(itemControl, randomLocations[i]);
+                    }
+
                     var prevState = (WorkItem)itemControl.Tag;
                     if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
                     {
