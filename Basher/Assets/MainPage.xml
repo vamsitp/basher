@@ -48,7 +48,7 @@
       <TextBlock Name="ResolvedPopupText" Text="YOU ROCK!" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="IndianRed" TextAlignment="Center" />
       <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
         <Image.Source>
-          <BitmapImage UriSource="Assets/Rock.gif" AutoPlay="True" DecodePixelWidth="400" />
+          <BitmapImage UriSource="../Assets/Rock.gif" AutoPlay="True" DecodePixelWidth="400" />
         </Image.Source>
       </Image>
     </StackPanel>
@@ -58,7 +58,7 @@
       <TextBlock Name="AssignedPopupText" Text="YOU HAVE A GIFT!" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="OrangeRed" TextAlignment="Center" />
       <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="200">
         <Image.Source>
-          <BitmapImage UriSource="Assets/Dino.gif" AutoPlay="True" DecodePixelWidth="200" />
+          <BitmapImage UriSource="../Assets/Dino.gif" AutoPlay="True" DecodePixelWidth="200" />
         </Image.Source>
       </Image>
     </StackPanel>
