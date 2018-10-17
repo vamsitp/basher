@@ -27,7 +27,7 @@
 
         public WorkItem WorkItem { get; }
 
-        protected abstract int Width { get; }
+        protected abstract int ControlWidth { get; }
 
         public IList<WorkItem> ActiveTasks => (this.WorkItem as UserStory).Tasks.Where(x => !x.Fields.State.Equals("Removed")).ToList();
 
@@ -42,7 +42,7 @@
         private double maxHeight;
         // private string animationState = Extensions.Playing;
 
-        public ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
+        protected ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
         {
             this.Tag = item;
             this.WorkItem = item;
@@ -110,7 +110,7 @@
             var bitmapImage = new BitmapImage { AutoPlay = true };
             img.Source = bitmapImage;
             this.SetBitmap(img, this.Criticality);
-            img.Width = bitmapImage.DecodePixelWidth = this.Width;
+            img.Width = bitmapImage.DecodePixelWidth = this.ControlWidth;
         }
 
         protected void AssignedTo_Loaded(object sender, RoutedEventArgs e)

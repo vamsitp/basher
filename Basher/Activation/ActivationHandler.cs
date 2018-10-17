@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Basher.Activation
 {
@@ -18,12 +17,12 @@ namespace Basher.Activation
 
         public override async Task HandleAsync(object args)
         {
-            await HandleInternalAsync(args as T);
+            await this.HandleInternalAsync(args as T);
         }
 
         public override bool CanHandle(object args)
         {
-            return args is T && CanHandleInternal(args as T);
+            return args is T && this.CanHandleInternal(args as T);
         }
 
         protected virtual bool CanHandleInternal(T args)

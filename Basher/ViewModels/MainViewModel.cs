@@ -12,7 +12,6 @@
     using Basher.Views;
 
     using GalaSoft.MvvmLight;
-    using GalaSoft.MvvmLight.Messaging;
     using GalaSoft.MvvmLight.Threading;
 
     using Windows.Storage;
@@ -35,10 +34,12 @@
         private readonly SpeechService speechService;
         private bool isCtrlKeyPressed;
         private readonly DispatcherTimer marqueeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+
         private List<MarqueeItem> defaultMarqueeItems = new List<MarqueeItem>
         {
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show HELP", WhiteColor)
         };
+
         private readonly List<MarqueeItem> helpMarqueeItems = new List<MarqueeItem>
         {
             new MarqueeItem("DOUBLE-CLICK".ToMarqueeKey(), "ON A WORK-ITEM to open it in the browser", WhiteColor),
@@ -50,13 +51,14 @@
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + P' to update preferences", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + R' to refresh", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + U' to show User-Stories window", WhiteColor),
-            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + B' to show the Main (Bugs) window", WhiteColor),
+            new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + L' to open the log file", WhiteColor),
             new MarqueeItem("PRESS".ToMarqueeKey(), "'CTRL + H' to show this help", WhiteColor)
         };
 
-        public Dictionary<string, SolidColorBrush> Colors = new Dictionary<string, SolidColorBrush>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, SolidColorBrush> colors = new Dictionary<string, SolidColorBrush>(StringComparer.OrdinalIgnoreCase);
 
         private Brush background = new SolidColorBrush(Color.FromArgb(255, 24, 24, 24));
+
         public Brush Background
         {
             get => this.background;
@@ -65,6 +67,7 @@
         }
 
         private bool listening;
+
         public bool Listening
         {
             get => this.listening;
@@ -73,6 +76,7 @@
         }
 
         private ObservableCollection<WorkItem> wItems;
+
         public ObservableCollection<WorkItem> Items
         {
             get => this.wItems;
@@ -81,6 +85,7 @@
         }
 
         private ObservableCollection<MarqueeItem> marqueeItems;
+
         public ObservableCollection<MarqueeItem> MarqueeItems
         {
             get => this.marqueeItems;
@@ -95,6 +100,12 @@
         protected NavigationServiceEx NavigationService { get; }
 
         protected IDialogServiceEx DialogService { get; }
+
+        public Dictionary<string, SolidColorBrush> Colors
+        {
+            get => this.colors;
+            set => this.colors = value;
+        }
 
         //protected CoreDispatcher Dispatcher { get; }
 
@@ -119,28 +130,18 @@
             appView.TitleBar.ButtonForegroundColor = Windows.UI.Colors.White;
         }
 
-        private Func<Task> postInit;
-        public void Initialize(Func<Task> postInit)
+        private Func<bool, Task> postInit;
+
+        public virtual Task Initialize(Func<bool, Task> postInit)
         {
             this.postInit = postInit;
             this.marqueeTimer.Tick += this.MarqueeTimer_Tick;
-            if (this is BugsViewModel)
-            {
-                this.MessengerInstance.Register<NotificationMessageAction<bool>>(this, async reply =>
-                {
-                    await this.InitializeInternal();
-                    reply.Execute(true);
-                });
-            }
-            else
-            {
-                this.InitializeInternal();
-            }
+            return Task.CompletedTask;
         }
 
-        private async Task InitializeInternal()
+        protected async Task InitializeInternal(bool launchFullscreen)
         {
-            if (!ApplicationView.GetForCurrentView().IsFullScreenMode)
+            if (launchFullscreen && !ApplicationView.GetForCurrentView().IsFullScreenMode)
             {
                 ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
             }
@@ -156,7 +157,7 @@
                 await this.recognitionService.Initialize();
             }
 
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit());
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(false));
         }
 
         private async Task SetBackground()
@@ -167,7 +168,7 @@
             this.Background = new ImageBrush { ImageSource = bitmap };
         }
 
-        public virtual async Task RefreshItems(bool loading = false)
+        public virtual Task RefreshItems(bool loading = false)
         {
             if (this.Colors.Count == 0)
             {
@@ -175,6 +176,7 @@
             }
 
             this.SetMarqueeAssignements();
+            return Task.CompletedTask;
         }
 
         public virtual void SetTitle(string criticalitySuffix)
@@ -192,8 +194,10 @@
 
         public Color GetRandomColor(string text = "")
         {
-            // Color[] clrs = Enumerable.Range(0, Convert.ToInt32(Math.Pow(count, 2))).Select(x => Color.FromArgb(rnd.Next(0, Convert.ToInt32(Math.Pow(256, 3))) | 0xFF000000)).ToArray();
-            // colors = clrs.Distinct().Where(c => c.R > 150 & c.G > 150 & c.B > 150).ToArray();
+            // Color[] clrs = Enumerable.Range(0, Convert.ToInt32(Math.Pow(count, 2))).Select(x =>
+            // Color.FromArgb(rnd.Next(0, Convert.ToInt32(Math.Pow(256, 3))) |
+            // 0xFF000000)).ToArray(); colors = clrs.Distinct().Where(c => c.R > 150 & c.G > 150 &
+            // c.B > 150).ToArray();
 
             if (text.Equals("None"))
             {
@@ -208,7 +212,8 @@
             var b = byt[2];
 
             var color = Color.FromArgb(255, r, g, b);
-            // if (Convert.ToInt32(r + g + b) > 270 && Convert.ToInt32(r + g + b) < 630 && this.colors.All(c => !c.Value.IsCloseTo(color)))
+            // if (Convert.ToInt32(r + g + b) > 270 && Convert.ToInt32(r + g + b) < 630 &&
+            // this.colors.All(c => !c.Value.IsCloseTo(color)))
             if (Convert.ToInt32(r) > 120 && Convert.ToInt32(g) > 120 && Convert.ToInt32(b) > 120 && Convert.ToInt32(r + g + b) < 630 && this.Colors.All(c => !c.Value.Color.IsCloseTo(color)))
             {
                 return color;
@@ -240,11 +245,13 @@
                     case VirtualKey.S:
                         await this.StartStopListening(true);
                         break;
+
                     case VirtualKey.R:
                         this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Work-items...");
                         await this.RefreshItems(true);
-                        await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit());
+                        await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(true));
                         break;
+
                     case VirtualKey.L:
                         this.SetMarqueeItems("OPENING".ToMarqueeKey(), "Log file...");
                         var logsFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("Logs");
@@ -254,15 +261,18 @@
                             await Launcher.LaunchFileAsync(log);
                         }
                         break;
+
                     case VirtualKey.H:
                         this.DisplayHelp();
                         break;
+
                     case VirtualKey.U:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
+                        if (WindowManagerService.Current.SecondaryViews.Count == 0)
+                        {
+                            DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
+                        }
                         break;
-                    case VirtualKey.B:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.SwitchToMainViewAsync());
-                        break;
+
                     case VirtualKey.P:
                         // this.navigationService.Navigate(this.navigationService.GetNameOfRegisteredPage(typeof(SettingsPage)));
                         await SettingsDisplayService.ShowSettings();
@@ -280,9 +290,22 @@
         public void SetMarqueeAssignements()
         {
             var items = this.Items?.GroupBy(b => (AssignedTo: b.Fields.AssignedTo, AssignedToFullName: b.Fields.AssignedToFullName)).OrderByDescending(a => a.Count());
-            var marqItems = items.Select(x => new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString(), this.Colors[x.Key.AssignedToFullName]));
+            var marqItems = items.Select(this.GetMarqueeItem);
             this.defaultMarqueeItems = this.defaultMarqueeItems.Union(marqItems).ToList();
             this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
+        }
+
+        private MarqueeItem GetMarqueeItem(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
+        {
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString());
+            var assignedTo = x.Key.AssignedToFullName;
+            if (!this.Colors.ContainsKey(assignedTo))
+            {
+                this.Colors.Add(assignedTo, new SolidColorBrush(this.GetRandomColor(assignedTo)));
+            }
+
+            item.Color = this.Colors[assignedTo];
+            return item;
         }
 
         public async Task SetMarqueeItems(WorkItem workItem, bool speak)

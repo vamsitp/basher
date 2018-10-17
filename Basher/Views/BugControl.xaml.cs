@@ -18,7 +18,7 @@
             this.InitializeComponent();
         }
 
-        protected override int Width => (5 * (24 / this.Criticality) + (32 / this.Criticality));
+        protected override int ControlWidth => (5 * (24 / this.Criticality) + (32 / this.Criticality));
 
         protected override void SetTooltips()
         {

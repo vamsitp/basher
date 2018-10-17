@@ -1,6 +1,7 @@
 ﻿namespace Basher.Views
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -55,6 +56,7 @@
             var xml = await FileIO.ReadTextAsync(file);
             var content = XamlReader.Load(xml) as Grid;
             this.Content = content;
+            this.SizeChanged += this.MainPage_SizeChanged;
             this.MarqueeStoryboard = content.FindName(nameof(this.MarqueeStoryboard)) as Storyboard;
             this.MainGrid = content.FindName(nameof(this.MainGrid)) as Grid;
             this.AssignedPopup = content.FindName(nameof(this.AssignedPopup)) as Popup;
@@ -64,10 +66,10 @@
 
             //if (e.NavigationMode == NavigationMode.New)
             //{
-            this.ViewModel.Initialize(() =>
+            await this.ViewModel.Initialize(reanimate =>
             {
                 this.SetTimer();
-                return this.PopulateWorkItems(true);
+                return this.PopulateWorkItems(true, reanimate);
             });
 
             this.MarqueeStoryboard.Begin();
@@ -76,6 +78,19 @@
             CoreWindow.GetForCurrentThread().KeyDown += this.ViewModel.KeyDown;
             CoreWindow.GetForCurrentThread().KeyUp += this.ViewModel.KeyUp;
             base.OnNavigatedTo(e);
+        }
+
+        private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (Math.Abs(e.NewSize.Height - e.PreviousSize.Height) >= 100 || Math.Abs(e.NewSize.Width - e.PreviousSize.Width) >= 150)
+            {
+                var items = this.MainGrid.Children.Cast<ItemControl>().ToList();
+                var randomLocations = this.GetRandomLocations(items.Count);
+                for (var i = 0; i < items.Count; i++)
+                {
+                    this.ReAnimateItem(items[i], randomLocations[i]);
+                }
+            }
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -110,7 +125,7 @@
             await this.PopulateWorkItems(false);
         }
 
-        protected virtual async Task PopulateWorkItems(bool loading = false)
+        protected virtual async Task PopulateWorkItems(bool loading = false, bool reanimate = false)
         {
             var items = this.ViewModel.Items;
             if (items == null)
@@ -121,10 +136,7 @@
             var count = items.Count;
             var criticalitySuffix = App.Settings.Criticality;
             this.ViewModel.SetTitle(criticalitySuffix);
-
-            var lefts = this.ActualWidth.ToParts(count).ToList();
-            var tops = this.ActualHeight.ToParts(count).ToList();
-            var randomLocations = lefts.Select(x => (Left: lefts[this.random.Next(count)], Top: tops[this.random.Next(count)])).ToList();
+            var randomLocations = this.GetRandomLocations(count);
             for (var i = 0; i < count; i++)
             {
                 var item = items[i];
@@ -132,7 +144,11 @@
                 var user = item.Fields.AssignedToFullName;
                 if (itemControl != null)
                 {
-                    this.ReAnimateItem(itemControl, randomLocations[i]);
+                    if (reanimate)
+                    {
+                        this.ReAnimateItem(itemControl, randomLocations[i]);
+                    }
+
                     var prevState = (WorkItem)itemControl.Tag;
                     if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
                     {
@@ -172,15 +188,26 @@
                 }
                 else
                 {
-                    if (!this.ViewModel.Colors.ContainsKey(user))
+                    if (item.Fields.State != "Resolved" && item.Fields.State != "Closed")
                     {
-                        this.ViewModel.Colors.Add(user, new SolidColorBrush(this.ViewModel.GetRandomColor(user)));
-                    }
+                        if (!this.ViewModel.Colors.ContainsKey(user))
+                        {
+                            this.ViewModel.Colors.Add(user, new SolidColorBrush(this.ViewModel.GetRandomColor(user)));
+                        }
 
-                    await this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
-                    await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
+                        await this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
+                        await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
+                    }
                 }
             }
+        }
+
+        private List<(double Left, double Top)> GetRandomLocations(int count)
+        {
+            var lefts = this.ActualWidth.ToParts(count).ToList();
+            var tops = this.ActualHeight.ToParts(count).ToList();
+            var randomLocations = lefts.Select(x => (Left: lefts[this.random.Next(count)], Top: tops[this.random.Next(count)])).ToList();
+            return randomLocations;
         }
 
         protected void ReAnimateItem(ItemControl itemControl, (double Left, double Top) randomLocation)
