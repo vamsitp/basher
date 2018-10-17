@@ -40,6 +40,8 @@
 
         public Storyboard MarqueeStoryboard { get; private set; }
 
+        public ItemsControl MarqueeItems { get; private set; }
+
         public Grid MainGrid { get; private set; }
 
         public Popup AssignedPopup { get; private set; }
@@ -58,6 +60,8 @@
             this.Content = content;
             this.SizeChanged += this.MainPage_SizeChanged;
             this.MarqueeStoryboard = content.FindName(nameof(this.MarqueeStoryboard)) as Storyboard;
+            this.MarqueeItems = content.FindName(nameof(this.MarqueeItems)) as ItemsControl;
+            this.MarqueeItems.Tapped += this.MarqueeItems_Tapped;
             this.MainGrid = content.FindName(nameof(this.MainGrid)) as Grid;
             this.AssignedPopup = content.FindName(nameof(this.AssignedPopup)) as Popup;
             this.AssignedPopupText = content.FindName(nameof(this.AssignedPopupText)) as TextBlock;
@@ -78,6 +82,13 @@
             CoreWindow.GetForCurrentThread().KeyDown += this.ViewModel.KeyDown;
             CoreWindow.GetForCurrentThread().KeyUp += this.ViewModel.KeyUp;
             base.OnNavigatedTo(e);
+        }
+
+        private async void MarqueeItems_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            this.MarqueeStoryboard.Pause();
+            await Task.Delay(10000);
+            this.MarqueeStoryboard.Resume();
         }
 
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
