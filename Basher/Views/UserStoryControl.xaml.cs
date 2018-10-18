@@ -18,19 +18,20 @@
             this.InitializeComponent();
         }
 
-        protected override int ControlWidth => 60;
+        protected override int ControlWidth => 56;
 
         protected override void SetTooltips()
         {
             var toolTip = new ToolTip();
-            var item = this.WorkItem;
+            var item = this.WorkItem as UserStory;
+            var (original, completed, remaining) = this.GetWork();
             var content = new StringBuilder();
             content.AppendFormat("{0}: {1}\n", nameof(item.Id), item.Id);
             content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Title), item.Fields.Title);
-            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.CreatedBy), item.Fields.CreatedBy);
-            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.ChangedBy), item.Fields.ChangedBy);
-            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Severity), item.Fields.Severity);
-            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Priority), item.Fields.Priority);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.StoryPoints), item.Fields.StoryPoints);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.OriginalEstimate), original);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.CompletedWork), completed);
+            content.AppendFormat("{0}: {1}\n", nameof(item.Fields.RemainingWork), remaining);
             content.AppendFormat("{0}: {1}\n", nameof(item.Fields.State), item.Fields.State);
             content.AppendFormat("{0}: {1}", nameof(item.Fields.Reason), item.Fields.Reason);
             toolTip.Content = content.ToString();
@@ -66,7 +67,7 @@
             var allTasks = activeTasks.Count;
             var closedTasks = activeTasks.Count(x => x.Fields.State.Equals("Closed"));
             var (original, completed, remaining) = this.GetWork();
-            this.Age.Text = $"{closedTasks}C / {allTasks}T" + Environment.NewLine + $"{completed}C, {remaining}R / {original}O";
+            this.Age.Text = $"{closedTasks}c / {allTasks}" + Environment.NewLine + $"{completed}c, {remaining}r / {original}";
             if (closedTasks == allTasks)
             {
                 this.Age.Foreground = new SolidColorBrush(Colors.PaleGreen);

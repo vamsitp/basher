@@ -192,15 +192,15 @@
             foreach (var pi in obj?.GetType()?.GetProperties(BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)?.Where(x => !ignoreNames.Any(x.Name.Contains)))
             {
                 var t = pi.PropertyType;
-                if (t.IsPrimitive || t == typeof(decimal) || t == typeof(string) || t == typeof(DateTimeOffset))
+                var val = pi.GetValue(obj, null);
+                if (!val.IsNullOrDefault())
                 {
-                    var name = pi.Name.ToMarqueeKey(nameUpperCase, nameSuffix);
-                    list.Add(new KeyValuePair<string, string>(name, pi.GetValue(obj, null)?.ToString() ?? string.Empty));
-                }
-                else
-                {
-                    var val = pi.GetValue(obj, null);
-                    if (val != null)
+                    if (t.IsPrimitive || t == typeof(decimal) || t == typeof(string) || t == typeof(DateTimeOffset))
+                    {
+                        var name = pi.Name.ToMarqueeKey(nameUpperCase, nameSuffix);
+                        list.Add(new KeyValuePair<string, string>(name, pi.GetValue(obj, null)?.ToString() ?? string.Empty));
+                    }
+                    else
                     {
                         list.AddRange(val.GetPropertyNamesAndValues(nameUpperCase, nameSuffix, ignoreNames));
                     }
@@ -208,6 +208,28 @@
             }
 
             return list;
+        }
+
+        // Credit: https://stackoverflow.com/a/6553356
+        public static bool IsNullOrDefault<T>(this T argument)
+        {
+            if (argument is ValueType || argument != null)
+            {
+                return object.Equals(argument, GetDefault(argument.GetType()));
+            }
+
+            return true;
+        }
+
+
+        public static object GetDefault(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
         }
     }
 }
