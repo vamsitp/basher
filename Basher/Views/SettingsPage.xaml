@@ -130,8 +130,8 @@
                         NavigateUri="https://opengameart.org/content/enemy-game-character-dark-monster" Margin="0 0 12 0" />
 
                     <HyperlinkButton
-                        Content="UserStory Icons"
-                        NavigateUri="https://kidaha.com/blog/weekly-product-design-inspiration-5/" Margin="0 0 12 0" />
+                        Content="UserStory Icon"
+                        NavigateUri="http://4.bp.blogspot.com/-eDLvtfbanpM/UwRyiRWsDhI/AAAAAAAAAVQ/jBgQBJ_8D_I/s1600/NO+ME+LO+CREO.gif" Margin="0 0 12 0" />
 
                     <HyperlinkButton
                         Content="Dino Logo"
