@@ -36,10 +36,19 @@
 
         public override void SetTitle(string criticalitySuffix)
         {
-            var (count, s1, s2, s3, s4) = this.GetCounts();
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / STORIES = {count} / P1 = {s1} / P2 = {s2} / P3 = {s3} / P4 = {s4}";
+            var (total, committed, resolved, closed) = this.GetUserStoryCounts();
+            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / STORIES COMMITTED = {committed} / RESOLVED = {resolved} / CLOSED = {resolved}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
+        }
+
+        protected (int total, int committed, int resolved, int closed) GetUserStoryCounts()
+        {
+            var total = this.Items.Count;
+            var committed = this.Items.Count(b => b.Fields.State == "Committed");
+            var resolved = this.Items.Count(b => b.Fields.State == "Resolved");
+            var closed = this.Items.Count(b => b.Fields.State == "Closed");
+            return (total, committed, resolved, closed);
         }
 
         public override async Task Initialize(Func<bool, Task> postInit)
