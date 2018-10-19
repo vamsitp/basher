@@ -5,7 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-
+    using Basher.Helpers;
     using Basher.Models;
     using Basher.Services;
 
@@ -55,6 +55,12 @@
         {
             await base.Initialize(postInit);
             await this.InitializeInternal(false);
+        }
+
+        protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
+        {
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString());
+            return item;
         }
     }
 }

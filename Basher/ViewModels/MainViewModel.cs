@@ -27,7 +27,7 @@
     /// This class contains properties that the main View can data bind to.
     /// <para> See http://www.mvvmlight.net </para>
     /// </summary>
-    public class MainViewModel : ViewModelBase
+    public abstract class MainViewModel : ViewModelBase
     {
         private static readonly SolidColorBrush WhiteColor = new SolidColorBrush(Windows.UI.Colors.White);
         private readonly RecognitionService recognitionService;
@@ -295,9 +295,11 @@
             this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.defaultMarqueeItems);
         }
 
+        protected abstract MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> item);
+
         private MarqueeItem GetMarqueeItem(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString());
+            var item = this.GetMarqueeAssignment(x);
             var assignedTo = x.Key.AssignedToFullName;
             if (!this.Colors.ContainsKey(assignedTo))
             {
@@ -349,13 +351,14 @@
             }
         }
 
-        protected (int Total, int P1, int P2, int P3, int P4) GetCounts()
+        protected (int Total, int P1, int P2, int P3, int P4) GetCounts(string assignedToFullName = null)
         {
-            var count = this.Items.Count;
-            var s1 = this.Items.Count(b => b.Fields.Criticality == 1);
-            var s2 = this.Items.Count(b => b.Fields.Criticality == 2);
-            var s3 = this.Items.Count(b => b.Fields.Criticality == 3);
-            var s4 = this.Items.Count(b => b.Fields.Criticality == 4);
+            var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var count = workitems.Count;
+            var s1 = workitems.Count(b => b.Fields.Criticality == 1);
+            var s2 = workitems.Count(b => b.Fields.Criticality == 2);
+            var s3 = workitems.Count(b => b.Fields.Criticality == 3);
+            var s4 = workitems.Count(b => b.Fields.Criticality == 4);
             return (count, s1, s2, s3, s4);
         }
     }

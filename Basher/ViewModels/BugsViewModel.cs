@@ -5,7 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-
+    using Basher.Helpers;
     using Basher.Models;
     using Basher.Services;
     using GalaSoft.MvvmLight.Messaging;
@@ -50,6 +50,13 @@
                 await this.InitializeInternal(true);
                 reply.Execute(true);
             });
+        }
+
+        protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
+        {
+            var (count, s1, s2, s3, s4) = this.GetCounts(x.Key.AssignedToFullName);
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Gifts = {count.ToString().PadLeft(2)} / {App.Settings.Criticality}1 = {s1} / {App.Settings.Criticality}2 = {s2} / {App.Settings.Criticality}3 = {s3} / {App.Settings.Criticality}4 = {s4}");
+            return item;
         }
     }
 }
