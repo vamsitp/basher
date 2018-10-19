@@ -56,10 +56,7 @@
         [JsonProperty(PropertyName = "System.AssignedTo")]
         public string AssignedToFullName
         {
-            get
-            {
-                return this.assignedTo ?? None;
-            }
+            get => this.assignedTo ?? None;
             set
             {
                 if (value != null && this.assignedTo != value)
@@ -126,6 +123,32 @@
         [JsonProperty(PropertyName = "Microsoft.VSTS.Scheduling.StoryPoints")]
         public float StoryPoints { get; set; }
     }
+
+
+    public class VstsException
+    {
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        [JsonProperty(PropertyName = "innerException")]
+        public object InnerException { get; set; }
+
+        [JsonProperty(PropertyName = "message")]
+        public string Message { get; set; }
+
+        [JsonProperty(PropertyName = "typeName")]
+        public string TypeName { get; set; }
+
+        [JsonProperty(PropertyName = "typeKey")]
+        public string TypeKey { get; set; }
+
+        [JsonProperty(PropertyName = "errorCode")]
+        public int ErrorCode { get; set; }
+
+        [JsonProperty(PropertyName = "eventId")]
+        public int EventId { get; set; }
+    }
+
 
     //public class BugFields
     //{

@@ -1,7 +1,7 @@
 # `basher`
 > **A FUN & ANIMATED BUG BASHING DASHBOARD!**
 
-![Snapshot](Snapshot.png)
+![Snapshot](Snapshot.gif)
 
 #### INSTALLATION
 - Install [**`Basher.cer`**](Basher.cer) into **`Local Computer > Trusted Root ...`**

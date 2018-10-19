@@ -179,18 +179,7 @@
             return Task.CompletedTask;
         }
 
-        public virtual void SetTitle(string criticalitySuffix)
-        {
-            var count = this.Items.Count;
-            var s1 = this.Items.Count(b => b.Fields.Criticality == 1);
-            var s2 = this.Items.Count(b => b.Fields.Criticality == 2);
-            var s3 = this.Items.Count(b => b.Fields.Criticality == 3);
-            var s4 = this.Items.Count(b => b.Fields.Criticality == 4);
-
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
-            var appView = ApplicationView.GetForCurrentView();
-            appView.Title = title;
-        }
+        public abstract void SetTitle(string criticalitySuffix);
 
         public Color GetRandomColor(string text = "")
         {

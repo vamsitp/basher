@@ -30,8 +30,12 @@
         public override async Task RefreshItems(bool loading = false)
         {
             var ids = loading ? new List<int>() : this.Items?.Select(x => x.Id)?.ToList();
-            this.Items = new ObservableCollection<WorkItem>(await this.VstsService.GetBugs(ids));
-            await base.RefreshItems(loading);
+            var bugs = await this.VstsService.GetBugs(ids);
+            if (bugs != null)
+            {
+                this.Items = new ObservableCollection<WorkItem>(bugs);
+                await base.RefreshItems(loading);
+            }
         }
 
         public override void SetTitle(string criticalitySuffix)
