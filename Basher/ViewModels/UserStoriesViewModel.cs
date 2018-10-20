@@ -46,12 +46,13 @@
             appView.Title = title;
         }
 
-        protected (int total, int committed, int resolved, int closed) GetUserStoryCounts()
+        protected (int total, int committed, int resolved, int closed) GetUserStoryCounts(string assignedToFullName = null)
         {
-            var total = this.Items.Count;
-            var committed = this.Items.Count(b => b.Fields.State == "Committed");
-            var resolved = this.Items.Count(b => b.Fields.State == "Resolved");
-            var closed = this.Items.Count(b => b.Fields.State == "Closed");
+            var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var total = workitems.Count;
+            var committed = workitems.Count(b => b.Fields.State == "Committed");
+            var resolved = workitems.Count(b => b.Fields.State == "Resolved");
+            var closed = workitems.Count(b => b.Fields.State == "Closed");
             return (total, committed, resolved, closed);
         }
 
@@ -63,7 +64,8 @@
 
         protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), x.Count().ToString());
+            var (total, committed, resolved, closed) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Committed = {committed} / Closed = {closed} / Resolved = {resolved}");
             return item;
         }
     }

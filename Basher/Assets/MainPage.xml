@@ -44,8 +44,8 @@
   </Canvas>
   <Grid Name="MainGrid"/>
   <Popup Name="ResolvedPopup" HorizontalAlignment="Center" VerticalAlignment="Center" IsOpen="false">
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#242424">
-      <TextBlock Name="ResolvedPopupText" Text="YOU ROCK!" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="IndianRed" TextAlignment="Center" />
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FF242424">
+      <TextBlock Name="ResolvedPopupText" Text="YOU ROCK!" FontFamily="Segoe UI" FontSize="20" FontWeight="SemiBold" Foreground="IndianRed" TextAlignment="Center" Padding="8"/>
       <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
         <Image.Source>
           <BitmapImage UriSource="../Assets/Rock.gif" AutoPlay="True" DecodePixelWidth="400" />
@@ -54,8 +54,8 @@
     </StackPanel>
   </Popup>
   <Popup Name="AssignedPopup" HorizontalAlignment="Center" VerticalAlignment="Center" IsOpen="false">
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#242424">
-      <TextBlock Name="AssignedPopupText" Text="YOU HAVE A GIFT!" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="OrangeRed" TextAlignment="Center" />
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#FF242424">
+      <TextBlock Name="AssignedPopupText" Text="YOU HAVE A GIFT!" FontFamily="Segoe UI" FontSize="20" FontWeight="SemiBold" Foreground="OrangeRed" TextAlignment="Center" Padding="8" />
       <Image HorizontalAlignment="Center" VerticalAlignment="Center" Width="200">
         <Image.Source>
           <BitmapImage UriSource="../Assets/Dino.gif" AutoPlay="True" DecodePixelWidth="200" />

@@ -24,7 +24,7 @@
         {
             var toolTip = new ToolTip();
             var item = this.WorkItem as UserStory;
-            var (original, completed, remaining) = this.GetWork();
+            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(item);
             var content = new StringBuilder();
             content.AppendFormat("{0}: {1}\n", nameof(item.Id), item.Id);
             content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Title), item.Fields.Title);
@@ -38,9 +38,9 @@
             ToolTipService.SetToolTip(this.MainControl, toolTip);
         }
 
-        protected override void SetBitmap(Image img, int criticality)
+        protected override void SetBitmap(int criticality)
         {
-            var (original, completed, remaining) = this.GetWork();
+            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
             if (remaining == 0)
             {
                 criticality = 4;
@@ -58,15 +58,12 @@
                 criticality = 3;
             }
 
-            base.SetBitmap(img, criticality);
+            base.SetBitmap(criticality);
         }
 
         protected override void SuperscriptLoaded()
         {
-            var activeTasks = this.ActiveTasks;
-            var allTasks = activeTasks.Count;
-            var closedTasks = activeTasks.Count(x => x.Fields.State.Equals("Closed"));
-            var (original, completed, remaining) = this.GetWork();
+            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
             this.Age.Text = $"{closedTasks}c / {allTasks}" + Environment.NewLine + $"{completed}c, {remaining}r / {original}";
             if (closedTasks == allTasks)
             {

@@ -1,14 +1,13 @@
 ﻿namespace Basher.Views
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
+
     using Basher.Helpers;
     using Basher.Models;
     using Basher.ViewModels;
-    using CommonServiceLocator;
+
     using Windows.Storage;
     using Windows.UI;
     using Windows.UI.Xaml;
@@ -16,7 +15,6 @@
     using Windows.UI.Xaml.Input;
     using Windows.UI.Xaml.Markup;
     using Windows.UI.Xaml.Media;
-    using Windows.UI.Xaml.Media.Animation;
     using Windows.UI.Xaml.Media.Imaging;
 
     public abstract class ItemControl : UserControl
@@ -25,11 +23,11 @@
         private static readonly string WorkItemEdit = $"{App.Settings.Project}/_workitems/edit";
         private static int[] times = Enumerable.Range(1, 10).ToArray();
 
-        public WorkItem WorkItem { get; }
+        public virtual ItemViewModel ViewModel => (ItemViewModel)this.DataContext;
+
+        public WorkItem WorkItem { get; set;  }
 
         protected abstract int ControlWidth { get; }
-
-        public IList<WorkItem> ActiveTasks => (this.WorkItem as UserStory).Tasks.Where(x => !x.Fields.State.Equals("Removed")).ToList();
 
         private readonly MainViewModel viewModel;
         private double left;
@@ -44,7 +42,6 @@
 
         protected ItemControl(MainViewModel viewModel, double left, double top, WorkItem item, Color color, double maxWidth, double maxHeight, bool flip = false)
         {
-            this.Tag = item;
             this.WorkItem = item;
             this.viewModel = viewModel;
             this.left = left;
@@ -106,11 +103,7 @@
 
         private void Item_Loaded(object sender, RoutedEventArgs e)
         {
-            var img = sender as Image;
-            var bitmapImage = new BitmapImage { AutoPlay = true };
-            img.Source = bitmapImage;
-            this.SetBitmap(img, this.Criticality);
-            img.Width = bitmapImage.DecodePixelWidth = this.ControlWidth;
+            this.SetBitmap(this.Criticality);
         }
 
         protected void AssignedTo_Loaded(object sender, RoutedEventArgs e)
@@ -147,7 +140,7 @@
 
         public void SetCriticality(int criticality)
         {
-            this.SetBitmap(this.Item, criticality);
+            this.SetBitmap(criticality);
             this.SetForeground(criticality);
         }
 
@@ -167,12 +160,14 @@
             //}
         }
 
-        protected virtual void SetBitmap(Image img, int criticality)
+        protected virtual void SetBitmap(int criticality)
         {
             var suffix = this.GetSuffix(criticality);
-            var bitmap = (img.Source as BitmapImage);
+            var bitmap = new BitmapImage { AutoPlay = true };
+            this.Item.Source = bitmap;
             var prefix = this.GetType().Name.Replace("Control", string.Empty);
             bitmap.UriSource = new Uri($"ms-appx:///Assets/{prefix}{suffix}.gif");
+            this.Item.Width = bitmap.DecodePixelWidth = this.ControlWidth;
         }
 
         private string GetSuffix(int criticality)
@@ -186,15 +181,6 @@
         protected void Age_Loaded(object sender, RoutedEventArgs e)
         {
             this.SuperscriptLoaded();
-        }
-
-        protected (float Original, float Completed, float Remaining) GetWork()
-        {
-            var activeTasks = this.ActiveTasks;
-            var original = activeTasks.Sum(x => x.Fields.OriginalEstimate);
-            var completed = activeTasks.Sum(x => x.Fields.CompletedWork);
-            var remaining = activeTasks.Sum(x => x.Fields.RemainingWork);
-            return (original, completed, remaining);
         }
     }
 }

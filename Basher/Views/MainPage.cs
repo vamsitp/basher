@@ -151,7 +151,7 @@
             for (var i = 0; i < count; i++)
             {
                 var item = items[i];
-                var itemControl = this.MainGrid.Children?.SingleOrDefault(x => ((WorkItem)(x as UserControl).Tag).Id.Equals(item.Id)) as ItemControl;
+                var itemControl = this.MainGrid.Children?.SingleOrDefault(x => ((ItemControl)x).WorkItem.Id.Equals(item.Id)) as ItemControl;
                 var user = item.Fields.AssignedToFullName;
                 if (itemControl != null)
                 {
@@ -160,7 +160,7 @@
                         this.ReAnimateItem(itemControl, randomLocations[i]);
                     }
 
-                    var prevState = (WorkItem)itemControl.Tag;
+                    var prevState = itemControl.WorkItem;
                     if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
                     {
                         if (item.Fields.State == "Resolved")
@@ -173,9 +173,7 @@
                         }
 
                         await this.PopUp(this.ResolvedPopup, this.ResolvedPopupText, user.ToUpperInvariant() + $", YOU ROCK!\n({item.Fields.AssignedTo}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "applause", $"{user} {item.Fields.State}: {item.Id}", loading);
-                        itemControl.Disappear();
-                        this.MainGrid.Children.Remove(itemControl);
-                        itemControl = null;
+                        this.RemoveItem(itemControl);
                     }
                     else
                     {
@@ -194,7 +192,7 @@
                             }
                         }
 
-                        itemControl.Tag = item;
+                        itemControl.WorkItem = item;
                     }
                 }
                 else
@@ -213,6 +211,13 @@
             }
         }
 
+        private void RemoveItem(ItemControl itemControl)
+        {
+            itemControl.Disappear();
+            this.MainGrid.Children.Remove(itemControl);
+            itemControl = null;
+        }
+
         private List<(double Left, double Top)> GetRandomLocations(int count)
         {
             var lefts = this.ActualWidth.ToParts(count).ToList();
@@ -226,7 +231,7 @@
             itemControl.Animate(randomLocation.Left, randomLocation.Top, this.ActualWidth, this.ActualHeight);
         }
 
-        protected async Task AddWorkItem(WorkItem workItem, (double Left, double Top) randomLocation, bool flip, Color color)
+        protected async Task<ItemControl> AddWorkItem(WorkItem workItem, (double Left, double Top) randomLocation, bool flip, Color color)
         {
             ItemControl itemControl = null;
             if (workItem is UserStory)
@@ -240,6 +245,7 @@
 
             await itemControl.Initialize();
             this.MainGrid.Children.Add(itemControl);
+            return itemControl;
         }
 
         private void Grid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
