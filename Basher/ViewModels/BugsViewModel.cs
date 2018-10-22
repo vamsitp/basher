@@ -41,7 +41,7 @@
         public override void SetTitle(string criticalitySuffix)
         {
             var (count, s1, s2, s3, s4) = this.GetCounts();
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS ACTIVE = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
+            var title = $"{App.Settings.Account.ToUpperInvariant()} | {App.Settings.Project.ToUpperInvariant()} | GIFTS ACTIVE = {count} | {criticalitySuffix}1 = {s1} | {criticalitySuffix}2 = {s2} | {criticalitySuffix}3 = {s3} | {criticalitySuffix}4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
         }
@@ -74,7 +74,7 @@
         protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
             var (count, s1, s2, s3, s4) = this.GetCounts(x.Key.AssignedToFullName);
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Gifts = {count.ToString().PadLeft(2)} / {App.Settings.Criticality}1 = {s1} / {App.Settings.Criticality}2 = {s2} / {App.Settings.Criticality}3 = {s3} / {App.Settings.Criticality}4 = {s4}");
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Gifts = {count.ToString().PadLeft(2)} | {App.Settings.Criticality}1 = {s1} | {App.Settings.Criticality}2 = {s2} | {App.Settings.Criticality}3 = {s3} | {App.Settings.Criticality}4 = {s4}");
             return item;
         }
     }

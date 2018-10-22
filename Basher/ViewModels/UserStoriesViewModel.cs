@@ -40,20 +40,18 @@
 
         public override void SetTitle(string criticalitySuffix)
         {
-            var (total, committed, resolved, closed) = this.GetUserStoryCounts();
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / STORIES COMMITTED = {committed} / RESOLVED = {resolved} / CLOSED = {resolved}";
+            var (stories, allTasks, closedTasks, original, completed, remaining) = this.GetUserStoryCounts();
+            var title = $"{App.Settings.Account.ToUpperInvariant()} | {App.Settings.Project.ToUpperInvariant()} | STORIES COMMITTED = {stories} | TOTAL TASKS = {allTasks} | CLOSED TASKS = {closedTasks} | REMAINING WORK = {remaining}h";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
         }
 
-        protected (int total, int committed, int resolved, int closed) GetUserStoryCounts(string assignedToFullName = null)
+        protected (int stories, int allTasks, int closedTasks, float original, float completed, float remaining) GetUserStoryCounts(string assignedToFullName = null)
         {
             var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
-            var total = workitems.Count;
-            var committed = workitems.Count(b => b.Fields.State == "Committed");
-            var resolved = workitems.Count(b => b.Fields.State == "Resolved");
-            var closed = workitems.Count(b => b.Fields.State == "Closed");
-            return (total, committed, resolved, closed);
+            var stories = workitems.Count;
+            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(workitems.Cast<UserStory>());
+            return (stories, allTasks, closedTasks, original, completed, remaining);
         }
 
         public override async Task Initialize(Func<bool, Task> postInit)
@@ -64,8 +62,8 @@
 
         protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
-            var (total, committed, resolved, closed) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Stories = {committed} / Closed = {closed} / Resolved = {resolved}");
+            var (stories, allTasks, closedTasks, original, completed, remaining) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Stories = {stories} | Tasks = {closedTasks}c / {allTasks} | Remaining = {remaining}h");
             return item;
         }
     }
