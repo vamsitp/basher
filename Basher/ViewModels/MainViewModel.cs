@@ -339,16 +339,5 @@
                 this.isCtrlKeyPressed = false;
             }
         }
-
-        protected (int Total, int P1, int P2, int P3, int P4) GetCounts(string assignedToFullName = null)
-        {
-            var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
-            var count = workitems.Count;
-            var s1 = workitems.Count(b => b.Fields.Criticality == 1);
-            var s2 = workitems.Count(b => b.Fields.Criticality == 2);
-            var s3 = workitems.Count(b => b.Fields.Criticality == 3);
-            var s4 = workitems.Count(b => b.Fields.Criticality == 4);
-            return (count, s1, s2, s3, s4);
-        }
     }
 }

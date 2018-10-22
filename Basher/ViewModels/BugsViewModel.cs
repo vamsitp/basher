@@ -41,9 +41,24 @@
         public override void SetTitle(string criticalitySuffix)
         {
             var (count, s1, s2, s3, s4) = this.GetCounts();
-            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
+            var title = $"{App.Settings.Account.ToUpperInvariant()} / {App.Settings.Project.ToUpperInvariant()} / GIFTS ACTIVE = {count} / {criticalitySuffix}1 = {s1} / {criticalitySuffix}2 = {s2} / {criticalitySuffix}3 = {s3} / {criticalitySuffix}4 = {s4}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
+        }
+
+        protected (int Total, int P1, int P2, int P3, int P4) GetCounts(string assignedToFullName = null)
+        {
+            var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var total = workitems.Count;
+            // var active = workitems.Count(b => b.Fields.State == "Active" || b.Fields.State == "New" || b.Fields.State == "Committed");
+            // var resolved = workitems.Count(b => b.Fields.State == "Resolved");
+            // var closed = workitems.Count(b => b.Fields.State == "Closed");
+
+            var s1 = workitems.Count(b => b.Fields.Criticality == 1);
+            var s2 = workitems.Count(b => b.Fields.Criticality == 2);
+            var s3 = workitems.Count(b => b.Fields.Criticality == 3);
+            var s4 = workitems.Count(b => b.Fields.Criticality == 4);
+            return (total, s1, s2, s3, s4);
         }
 
         public override async Task Initialize(Func<bool, Task> postInit)

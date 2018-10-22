@@ -65,7 +65,7 @@
         protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
             var (total, committed, resolved, closed) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Committed = {committed} / Closed = {closed} / Resolved = {resolved}");
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Stories = {committed} / Closed = {closed} / Resolved = {resolved}");
             return item;
         }
     }
