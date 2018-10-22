@@ -32,6 +32,7 @@
         {
             try
             {
+                var bugsList = new List<WorkItem>();
                 var apiVersion = $"api-version={ApiVersion}";
                 var baseUrl = BaseUrl.EndsWith(Slash) ? BaseUrl : BaseUrl + Slash;
                 var wiql = new
@@ -44,24 +45,28 @@
                         .ReceiveJson<JObject>()
                         .ConfigureAwait(false);
 
-                var response = result.SelectTokens(".workItems").Values<JObject>().ToList();
-                var ids = response.Select(x => x.SelectToken(".id").Value<int>());
-                if (currentBugIds?.Count > 0)
+                var response = result?.SelectTokens(".workItems")?.Values<JObject>()?.ToList();
+                if (response != null)
                 {
-                    ids = ids.Union(currentBugIds);
+                    var ids = response.Select(x => x.SelectToken(".id").Value<int>());
+                    if (currentBugIds?.Count > 0 && ids != null)
+                    {
+                        ids = ids.Union(currentBugIds);
+                    }
+
+                    var joinedIds = string.Join(",", ids);
+                    if (string.IsNullOrWhiteSpace(joinedIds))
+                    {
+                        return null;
+                    }
+
+                    var bugs = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, joinedIds.Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
+                                     .GetJsonAsync<WorkItems>()
+                                     .ConfigureAwait(false);
+                    bugsList = bugs.Items.ToList();
                 }
 
-                var joinedIds = string.Join(",", ids);
-                if (string.IsNullOrWhiteSpace(joinedIds))
-                {
-                    return null;
-                }
-
-                var bugs = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, joinedIds.Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
-                                 .GetJsonAsync<WorkItems>()
-                                 .ConfigureAwait(false);
-                var r = bugs.Items.ToList();
-                return r;
+                return bugsList;
             }
             catch (FlurlHttpException ex)
             {
@@ -87,32 +92,38 @@
                         .ReceiveJson<JObject>()
                         .ConfigureAwait(false);
 
-                var response = result.SelectTokens(".workItemRelations").Values<JObject>().ToList();
-                var userStoryIds = response.Where(x => x.SelectToken(".source.id") == null).Select(x => x.SelectToken(".target.id").Value<int>());
-                if (currentUserStoryIds?.Count > 0)
+                var response = result?.SelectTokens(".workItemRelations").Values<JObject>()?.ToList();
+                if (response != null)
                 {
-                    userStoryIds = userStoryIds.Union(currentUserStoryIds);
-                }
-
-                var userStories = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, string.Join(",", userStoryIds).Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
-                            .GetJsonAsync<UserStories>()
-                            .ConfigureAwait(false);
-
-                foreach (var userStory in userStories.Items)
-                {
-                    var taskIds = response.Where(x => x.SelectToken("source.id")?.Value<int>() == userStory.Id).Select(x => x.SelectToken(".target.id").Value<int>());
-                    var joinedIds = string.Join(",", taskIds);
-                    if (string.IsNullOrWhiteSpace(joinedIds))
+                    var userStoryIds = response.Where(x => x.SelectToken(".source.id") == null).Select(x => x.SelectToken(".target.id").Value<int>());
+                    if (currentUserStoryIds?.Count > 0 && userStoryIds != null)
                     {
-                        continue;
+                        userStoryIds = userStoryIds.Union(currentUserStoryIds);
                     }
 
-                    var tasks = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, joinedIds.Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
-                        .GetJsonAsync<WorkItems>()
-                        .ConfigureAwait(false);
+                    var userStories = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, string.Join(",", userStoryIds).Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
+                                .GetJsonAsync<UserStories>()
+                                .ConfigureAwait(false);
 
-                    userStory.Tasks = tasks.Items;
-                    userStoriesList.Add(userStory);
+                    if (userStories?.Items != null)
+                    {
+                        foreach (var userStory in userStories.Items)
+                        {
+                            var taskIds = response.Where(x => x.SelectToken("source.id")?.Value<int>() == userStory.Id).Select(x => x.SelectToken(".target.id").Value<int>());
+                            var joinedIds = string.Join(",", taskIds);
+                            if (string.IsNullOrWhiteSpace(joinedIds))
+                            {
+                                continue;
+                            }
+
+                            var tasks = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, joinedIds.Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
+                                .GetJsonAsync<WorkItems>()
+                                .ConfigureAwait(false);
+
+                            userStory.Tasks = tasks.Items;
+                            userStoriesList.Add(userStory);
+                        }
+                    }
                 }
 
                 return userStoriesList;

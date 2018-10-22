@@ -32,7 +32,7 @@
         {
             this.InitializeComponent();
             var logPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "Logs", "Basher_{Date}.log");
-            Log.Logger = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.RollingFile(logPath, outputTemplate: "{Timestamp:dd-MMM-yyyy HH:mm:ss} | [{Level}] {Message}{NewLine}{Exception}").Enrich.FromLogContext().CreateLogger();
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.RollingFile(logPath, outputTemplate: "{Timestamp:dd-MMM-yyyy HH:mm:ss} | [{Level}] {Message}{NewLine}{Exception}").Enrich.FromLogContext().CreateLogger();
             this.UnhandledException += this.App_UnhandledException;
             TaskScheduler.UnobservedTaskException += this.OnTaskSchedulerOnUnobservedTaskException;
             AppCenter.Start("6d81fd25-b4d7-4def-ad94-5e04fa6297b1", typeof(Analytics));
