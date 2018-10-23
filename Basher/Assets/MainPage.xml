@@ -23,9 +23,9 @@
     </Image.Source>
   </Image>
   <!--Credit: https://github.com/janaks09/MarqueeingTextBlock-->
-  <Canvas Width="600" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="48">
+  <Canvas Width="640" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="48">
     <Canvas.Clip>
-      <RectangleGeometry Rect="0, 0, 600, 800" />
+      <RectangleGeometry Rect="0, 0, 640, 800" />
     </Canvas.Clip>
     <ItemsControl ItemsSource="{Binding MarqueeItems}" Name="MarqueeItems">
       <ItemsControl.ItemTemplate>

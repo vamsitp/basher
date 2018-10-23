@@ -40,18 +40,18 @@
 
         public override void SetTitle(string criticalitySuffix)
         {
-            var (stories, allTasks, closedTasks, original, completed, remaining) = this.GetUserStoryCounts();
-            var title = $"{App.Settings.Account.ToUpperInvariant()} | {App.Settings.Project.ToUpperInvariant()} | STORIES COMMITTED = {stories} | TOTAL TASKS = {allTasks} | CLOSED TASKS = {closedTasks} | REMAINING WORK = {remaining}h";
+            var (stories, allTasks, closed, inProgress, notStarted, original, completed, remaining) = this.GetUserStoryCounts();
+            var title = $"{App.Settings.Account.ToUpperInvariant()} | {App.Settings.Project.ToUpperInvariant()} | STORIES COMMITTED = {stories} | TASKS = {closed}C, {inProgress}IP, {notStarted}NS / {allTasks} | WORK = {completed}C, {remaining}R / {original}";
             var appView = ApplicationView.GetForCurrentView();
             appView.Title = title;
         }
 
-        protected (int stories, int allTasks, int closedTasks, float original, float completed, float remaining) GetUserStoryCounts(string assignedToFullName = null)
+        protected (int stories, int allTasks, int closed, int inProgress, int notStarted, float original, float completed, float remaining) GetUserStoryCounts(string assignedToFullName = null)
         {
             var workitems = string.IsNullOrWhiteSpace(assignedToFullName) ? this.Items.ToList() : this.Items.Where(x => x.Fields.AssignedToFullName.Equals(assignedToFullName, StringComparison.OrdinalIgnoreCase)).ToList();
             var stories = workitems.Count;
-            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(workitems.Cast<UserStory>());
-            return (stories, allTasks, closedTasks, original, completed, remaining);
+            var (allTasks, closed, inProgress, notStarted, original, completed, remaining) = ItemViewModel.GetWork(workitems.Cast<UserStory>());
+            return (stories, allTasks, closed, inProgress, notStarted, original, completed, remaining);
         }
 
         public override async Task Initialize(Func<bool, Task> postInit)
@@ -62,8 +62,8 @@
 
         protected override MarqueeItem GetMarqueeAssignment(IGrouping<(string AssignedTo, string AssignedToFullName), WorkItem> x)
         {
-            var (stories, allTasks, closedTasks, original, completed, remaining) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
-            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Stories = {stories} | Tasks = {closedTasks}c / {allTasks} | Remaining = {remaining}h");
+            var (stories, allTasks, closed, inProgress, notStarted, original, completed, remaining) = this.GetUserStoryCounts(x.Key.AssignedToFullName);
+            var item = new MarqueeItem(x.Key.AssignedTo.ToMarqueeKey(upperCase: false), $"Stories = {stories} | Tasks = {closed}c, {inProgress}ip, {notStarted}ns / {allTasks} | Work = {completed}c, {remaining}r / {original}");
             return item;
         }
     }

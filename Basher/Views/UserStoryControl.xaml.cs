@@ -24,7 +24,7 @@
         {
             var toolTip = new ToolTip();
             var item = this.WorkItem as UserStory;
-            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(item);
+            var (allTasks, closed, inProgress, notStarted, original, completed, remaining) = ItemViewModel.GetWork(item);
             var content = new StringBuilder();
             content.AppendFormat("{0}: {1}\n", nameof(item.Id), item.Id);
             content.AppendFormat("{0}: {1}\n", nameof(item.Fields.Title), item.Fields.Title);
@@ -40,7 +40,7 @@
 
         protected override void SetBitmap(int criticality)
         {
-            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
+            var (allTasks, closed, inProgress, notStarted, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
             if (remaining == 0)
             {
                 criticality = 4;
@@ -63,13 +63,13 @@
 
         protected override void SuperscriptLoaded()
         {
-            var (allTasks, closedTasks, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
-            this.Age.Text = $"{closedTasks}c / {allTasks}" + Environment.NewLine + $"{completed}c, {remaining}r / {original}";
-            if (closedTasks == allTasks)
+            var (allTasks, closed, inProgress, notStarted, original, completed, remaining) = ItemViewModel.GetWork(this.WorkItem as UserStory);
+            this.Age.Text = $"{closed}c, {inProgress}ip, {notStarted}ns / {allTasks}" + Environment.NewLine + $"{completed}c, {remaining}r / {original}";
+            if (closed == allTasks)
             {
                 this.Age.Foreground = new SolidColorBrush(Colors.PaleGreen);
             }
-            else if (closedTasks >= allTasks / 2)
+            else if (closed >= allTasks / 2)
             {
                 this.Age.Foreground = new SolidColorBrush(Colors.Orange);
             }
