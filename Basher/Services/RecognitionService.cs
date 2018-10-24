@@ -8,13 +8,13 @@
 
     using CommonServiceLocator;
 
-    using GalaSoft.MvvmLight.Threading;
     using GalaSoft.MvvmLight.Views;
 
     using Serilog;
 
     using Windows.Globalization;
     using Windows.Media.SpeechRecognition;
+    using Windows.UI.Core;
 
     public class RecognitionService
     {
@@ -43,7 +43,7 @@
         {
             if (!this.permissionGained)
             {
-                DispatcherHelper.CheckBeginInvokeOnUI(async () => this.permissionGained = await AudioCapturePermissions.RequestMicrophonePermission());
+                await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => this.permissionGained = await AudioCapturePermissions.RequestMicrophonePermission());
             }
 
             try
@@ -167,9 +167,9 @@
         }
 
         BugsViewModel ViewModel => ServiceLocator.Current.GetInstance<BugsViewModel>();
-        private void SpeechRecognizer_HypothesisGenerated(SpeechRecognizer sender, SpeechRecognitionHypothesisGeneratedEventArgs args)
+        private async void SpeechRecognizer_HypothesisGenerated(SpeechRecognizer sender, SpeechRecognitionHypothesisGeneratedEventArgs args)
         {
-            DispatcherHelper.CheckBeginInvokeOnUI(() => this.ViewModel.Listening = true);
+            await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.ViewModel.Listening = true);
         }
 
         private void SpeechRecognizer_StateChanged(SpeechRecognizer sender, SpeechRecognizerStateChangedEventArgs args)
@@ -179,7 +179,7 @@
 
         private async void ContinuousRecognitionSession_ResultGenerated(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionResultGeneratedEventArgs args)
         {
-            DispatcherHelper.CheckBeginInvokeOnUI(() => this.ViewModel.Listening = false);
+            await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.ViewModel.Listening = false);
             if (args.Result.Confidence != SpeechRecognitionConfidence.Rejected)
             {
                 await this.speechHandler.Process(args.Result.Text);
@@ -193,12 +193,12 @@
             Log.Debug($"ResultGenerated: {args.Result.Confidence.ToString()}: {args.Result.Text}");
         }
 
-        private void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
+        private async void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args)
         {
             if (args.Status != SpeechRecognitionResultStatus.Success)
             {
                 Log.Verbose("SessionCompleted: " + args.Status.ToString());
-                DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.StartRecognizing(true));
+                await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.StartRecognizing(true));
             }
         }
     }

@@ -4,13 +4,15 @@
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+
     using Basher.ViewModels;
     using Basher.Views;
+
     using CommonServiceLocator;
 
-    using GalaSoft.MvvmLight.Threading;
-
     using Serilog;
+
+    using Windows.UI.Core;
 
     public class RecognitionHandler
     {
@@ -109,14 +111,14 @@
                 switch (key)
                 {
                     case DisplayHelp:
-                        DispatcherHelper.CheckBeginInvokeOnUI(() => vm.DisplayHelp());
+                        await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => vm.DisplayHelp());
                         break;
                     case StopListening:
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await vm.StartStopListening(false));
+                        await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await vm.StartStopListening(false));
                         break;
                     case StatusOfItem:
                     case DetailsOfItem:
-                        DispatcherHelper.CheckBeginInvokeOnUI(() => vm.SetMarqueeItems(input.Entity));
+                        await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => vm.SetMarqueeItems(input.Entity));
                         break;
                     case OpenItem:
                         await this.LaunchUri($"_workitems/edit/{input.Entity}");
@@ -132,7 +134,7 @@
                         break;
                     default:
                         var vstsResult = input.Intent + " " + input.Entity;
-                        DispatcherHelper.CheckBeginInvokeOnUI(async () => await this.speechService.PlaySpeech(vstsResult));
+                        await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.speechService.PlaySpeech(vstsResult));
                         break;
                 }
             }

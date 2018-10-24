@@ -12,7 +12,6 @@
     using Basher.Views;
 
     using GalaSoft.MvvmLight;
-    using GalaSoft.MvvmLight.Threading;
 
     using Windows.Storage;
     using Windows.System;
@@ -258,7 +257,7 @@
                     case VirtualKey.U:
                         if (WindowManagerService.Current.SecondaryViews.Count == 0)
                         {
-                            DispatcherHelper.CheckBeginInvokeOnUI(async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
+                            await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await WindowManagerService.Current.TryShowAsStandaloneAsync("USER STORIES", typeof(UserStoriesPage)));
                         }
                         break;
 
