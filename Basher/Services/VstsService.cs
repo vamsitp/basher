@@ -63,7 +63,7 @@
                     var bugs = await string.Format(CultureInfo.InvariantCulture, WorkItemsUrl, joinedIds.Trim(',')).GetAuthRequest(Project, baseUrl, Token, apiVersion)
                                      .GetJsonAsync<WorkItems>()
                                      .ConfigureAwait(false);
-                    bugsList = bugs.Items.ToList();
+                    bugsList = bugs?.Items?.ToList();
                 }
 
                 return bugsList;
@@ -120,7 +120,7 @@
                                 .GetJsonAsync<WorkItems>()
                                 .ConfigureAwait(false);
 
-                            userStory.Tasks = tasks.Items;
+                            userStory.Tasks = tasks?.Items;
                             userStoriesList.Add(userStory);
                         }
                     }
