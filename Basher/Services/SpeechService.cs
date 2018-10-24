@@ -52,8 +52,11 @@
                     var voice = SpeechSynthesizer.AllVoices.FirstOrDefault(gender => gender.Gender == VoiceGender.Female && gender.Language.Equals(App.Settings.SpeechLocale, StringComparison.OrdinalIgnoreCase));
                     speech.Voice = voice ?? SpeechSynthesizer.AllVoices.FirstOrDefault(gender => gender.Gender == VoiceGender.Female);
                     var stream = await speech.SynthesizeTextToStreamAsync(speechText);
-                    this.mediaElement.SetSource(stream, stream.ContentType);
-                    this.mediaElement.Play();
+                    await WindowManagerService.Current.MainDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        this.mediaElement.SetSource(stream, stream.ContentType);
+                        this.mediaElement.Play();
+                    });
                 }
             }
         }

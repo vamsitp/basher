@@ -92,8 +92,6 @@
             set => this.Set(ref this.marqueeItems, value);
         }
 
-        protected CoreDispatcher Dispatcher { get; private set; }
-
         protected IVstsService VstsService { get; }
 
         protected NavigationServiceEx NavigationService { get; }
@@ -106,8 +104,6 @@
             set => this.colors = value;
         }
 
-        //protected CoreDispatcher Dispatcher { get; }
-
         public MainViewModel(
             IVstsService vstsService,
             NavigationServiceEx navigationService,
@@ -115,7 +111,6 @@
             RecognitionService recognitionService,
             SpeechService speechService)
         {
-            this.Dispatcher = Window.Current.Dispatcher;
             this.VstsService = vstsService;
             this.NavigationService = navigationService;
             this.DialogService = dialogService;
@@ -145,7 +140,7 @@
                 ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
             }
 
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems));
+            this.MarqueeItems = new ObservableCollection<MarqueeItem>(this.helpMarqueeItems);
             await this.SetBackground();
             await this.RefreshItems(true);
             await LaunchSpeechService();
@@ -156,7 +151,7 @@
                 await this.recognitionService.Initialize();
             }
 
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(false));
+            await this.postInit(false);
         }
 
         private async Task SetBackground()
@@ -237,7 +232,7 @@
                     case VirtualKey.R:
                         this.SetMarqueeItems("REFRESHING".ToMarqueeKey(), "Work-items...");
                         await this.RefreshItems(true);
-                        await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(true));
+                        await WindowManagerService.Current.MainDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await this.postInit(true));
                         break;
 
                     case VirtualKey.L:

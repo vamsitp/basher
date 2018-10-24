@@ -204,8 +204,10 @@
                             this.ViewModel.Colors.Add(user, new SolidColorBrush(this.ViewModel.GetRandomColor(user)));
                         }
 
-                        await this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color);
-                        await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
+                        if (await this.AddWorkItem(item, randomLocations[i], i % 2 == 0, this.ViewModel.Colors[user].Color) != null)
+                        {
+                            await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A NEW GIFT!\n({item.Fields.CreatedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "alarm", $"{item.Fields.AssignedTo} has a new {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
+                        }
                     }
                 }
             }
@@ -236,15 +238,23 @@
             ItemControl itemControl = null;
             if (workItem is UserStory)
             {
-                itemControl = new UserStoryControl(this.ViewModel, randomLocation.Left, randomLocation.Top, workItem, color, this.ActualWidth, this.ActualHeight, flip);
+                var (allTasks, closed, inProgress, notStarted, original, completed, remaining) = ItemViewModel.GetWork(workItem as UserStory);
+                if (remaining > 0 || inProgress > 0 || notStarted > 0)
+                {
+                    itemControl = new UserStoryControl(this.ViewModel, randomLocation.Left, randomLocation.Top, workItem, color, this.ActualWidth, this.ActualHeight, flip);
+                }
             }
             else
             {
                 itemControl = new BugControl(this.ViewModel, randomLocation.Left, randomLocation.Top, workItem, color, this.ActualWidth, this.ActualHeight, flip);
             }
 
-            await itemControl.Initialize();
-            this.MainGrid.Children.Add(itemControl);
+            if (itemControl != null)
+            {
+                await itemControl.Initialize();
+                this.MainGrid.Children.Add(itemControl);
+            }
+
             return itemControl;
         }
 
