@@ -31,9 +31,9 @@
         {
             var ids = loading ? new List<int>() : this.Items?.Select(x => x.Id)?.ToList();
             var ucs = await this.VstsService.GetUserStories(ids);
-            if (ucs != null)
+            if (ucs?.Count > 0)
             {
-                this.Items = new ObservableCollection<WorkItem>(await this.VstsService.GetUserStories(ids));
+                this.Items = new ObservableCollection<WorkItem>(ucs);
                 await base.RefreshItems(loading);
             }
         }

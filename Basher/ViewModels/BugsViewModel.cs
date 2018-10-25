@@ -31,7 +31,7 @@
         {
             var ids = loading ? new List<int>() : this.Items?.Select(x => x.Id)?.ToList();
             var bugs = await this.VstsService.GetBugs(ids);
-            if (bugs != null)
+            if (bugs?.Count > 0)
             {
                 this.Items = new ObservableCollection<WorkItem>(bugs);
                 await base.RefreshItems(loading);

@@ -1,5 +1,6 @@
 ﻿namespace Basher.Services
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -14,6 +15,8 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+
+    using Serilog;
 
     public class VstsService : IVstsService
     {
@@ -30,9 +33,9 @@
 
         public async Task<IList<WorkItem>> GetBugs(List<int> currentBugIds)
         {
+            var bugsList = new List<WorkItem>();
             try
             {
-                var bugsList = new List<WorkItem>();
                 var apiVersion = $"api-version={ApiVersion}";
                 var baseUrl = BaseUrl.EndsWith(Slash) ? BaseUrl : BaseUrl + Slash;
                 var wiql = new
@@ -65,21 +68,25 @@
                                      .ConfigureAwait(false);
                     bugsList = bugs?.Items?.ToList();
                 }
-
-                return bugsList;
             }
             catch (FlurlHttpException ex)
             {
                 var vex = await ex.GetResponseJsonAsync<VstsException>();
-                throw new FlurlHttpException(ex.Call, vex.Message, ex);
+                Log.Error(ex, vex.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, ex.Message);
+            }
+
+            return bugsList;
         }
 
         public async Task<IList<UserStory>> GetUserStories(List<int> currentUserStoryIds)
         {
+            var userStoriesList = new List<UserStory>();
             try
             {
-                var userStoriesList = new List<UserStory>();
                 var apiVersion = $"api-version={ApiVersion}";
                 var baseUrl = BaseUrl.EndsWith(Slash) ? BaseUrl : BaseUrl + Slash;
                 var wiql = new
@@ -125,14 +132,18 @@
                         }
                     }
                 }
-
-                return userStoriesList;
             }
             catch (FlurlHttpException ex)
             {
                 var vex = await ex.GetResponseJsonAsync<VstsException>();
-                throw new FlurlHttpException(ex.Call, vex.Message, ex);
+                Log.Error(ex, vex.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, ex.Message);
+            }
+
+            return userStoriesList;
         }
     }
 }
