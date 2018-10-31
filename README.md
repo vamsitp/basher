@@ -1,5 +1,5 @@
 # `basher`
-> **A FUN & ANIMATED BUG BASHING DASHBOARD!**
+> **A FUN & ANIMATED BUG (@ USER-STORY) BASHING DASHBOARD!**
 
 ![Snapshot](Snapshot.gif)
 
