@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Release.json = Release.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yell", "Yell\Yell.csproj", "{D27AD1D4-58A3-4219-B4C7-307E847471D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yelly", "Yelly\Yelly\Yelly.csproj", "{D27AD1D4-58A3-4219-B4C7-307E847471D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

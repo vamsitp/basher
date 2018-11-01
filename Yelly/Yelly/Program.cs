@@ -1,4 +1,4 @@
-﻿namespace Yell
+﻿namespace Yelly
 {
     using System;
     using System.Configuration;
@@ -9,7 +9,7 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("\n> Type any phrase and hit 'ENTER' to Yell\n> Press 'CTRL + C' to quit\n");
+            Console.WriteLine("\n> Hi, this is Yelly!\n> Type any phrase and hit 'ENTER' to Yell\n> Press 'CTRL + C' to quit\n");
             using (var synth = new SpeechSynthesizer())
             {
                 SetSpeech(synth);
