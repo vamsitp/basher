@@ -21,7 +21,7 @@
                     <TextBox x:Name="VstsAccountName"
                      Margin="0,18,24,12"
                      PlaceholderText="VSTS Team/Account Name"
-                     ToolTipService.ToolTip="VSTS Team/Account Name"
+                     ToolTipService.ToolTip="Just the name (without http(s) prefix or visualstudio.com suffix)"
                      Header="VSTS ACCOUNT *"
                      Width="360"
                      Text="{x:Bind ViewModel.Account, Mode=TwoWay}" />
