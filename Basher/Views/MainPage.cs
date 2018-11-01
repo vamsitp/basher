@@ -118,7 +118,7 @@
                 popupText.Text = text;
                 popup.IsOpen = true;
                 await this.speechService.Play(sound, speechText, loading);
-                await Task.Delay(5000);
+                await Task.Delay(10000);
                 popup.IsOpen = false;
             }
         }

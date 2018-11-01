@@ -72,7 +72,7 @@
             catch (FlurlHttpException ex)
             {
                 var vex = await ex.GetResponseJsonAsync<VstsException>();
-                Log.Error(ex, vex.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
+                Log.Error(ex, vex?.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@
             catch (FlurlHttpException ex)
             {
                 var vex = await ex.GetResponseJsonAsync<VstsException>();
-                Log.Error(ex, vex.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
+                Log.Error(ex, vex?.Message); // throw new FlurlHttpException(ex.Call, vex.Message, ex);
             }
             catch (Exception ex)
             {
