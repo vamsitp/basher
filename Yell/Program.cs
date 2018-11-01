@@ -23,6 +23,7 @@
 
         private static void SetSpeech(SpeechSynthesizer synth)
         {
+            //// var voices = synth.GetInstalledVoices();
             synth.SetOutputToDefaultAudioDevice();
             Enum.TryParse<VoiceGender>(ConfigurationManager.AppSettings["VoiceGender"], true, out var voiceGender);
             Enum.TryParse<VoiceAge>(ConfigurationManager.AppSettings["VoiceAge"], true, out var voiceAge);
