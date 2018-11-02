@@ -2,6 +2,7 @@
 {
     using System;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Drawing;
     using System.Globalization;
     using System.Linq;
@@ -11,6 +12,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
+
     using Microsoft.Bot.Connector.DirectLine;
 
     class Program
@@ -28,6 +30,7 @@
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         private const string YellyStarted = "Yelly started!";
+        private const char CommandDelimiter = ':';
         private readonly static string BotId = ConfigurationManager.AppSettings["BotId"];
         private readonly static string DirectLineSecret = ConfigurationManager.AppSettings["DirectLineSecret"];
         private readonly static string FromUser = ConfigurationManager.AppSettings["BotUser"];
@@ -52,25 +55,19 @@
 
         private static async Task StartBotConversation()
         {
-            // Create a new Direct Line client.
             var client = new DirectLineClient(DirectLineSecret);
-
-            // Start the conversation.
             var conversation = await client.Conversations.StartConversationAsync();
-
-            // Start the bot message reader in a separate thread.
-            new System.Threading.Thread(async () => await ReadBotMessagesAsync(client, conversation.ConversationId)).Start();
-
+            new Thread(async () => await ReadBotMessagesAsync(client, conversation.ConversationId)).Start();
             await SendMessage(client, conversation, YellyStarted);
 
             // Loop until the user chooses to exit this loop.
             while (true)
             {
                 // Accept the input from the user.
-                string input = Console.ReadLine().Trim();
+                var input = Console.ReadLine().Trim();
 
                 // Check to see if the user wants to exit.
-                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (input.Equals("quit", StringComparison.OrdinalIgnoreCase) || input.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     // Exit the app if the user requests it.
                     break;
@@ -81,14 +78,13 @@
                 }
                 else
                 {
-                    Synth.SpeakAsync(input);
+                    Speak(input);
                 }
             }
         }
 
         private static Task SendMessage(DirectLineClient client, Conversation conversation, string input)
         {
-            // Create a message activity with the text the user entered.
             var userMessage = new Activity
             {
                 From = new ChannelAccount(FromUser, FromUser),
@@ -96,7 +92,6 @@
                 Type = ActivityTypes.Message
             };
 
-            // Send the message activity to the bot.
             return client.Conversations.PostActivityAsync(conversation.ConversationId, userMessage);
         }
 
@@ -132,9 +127,16 @@
                         if (!message.Equals(YellyStarted))
                         {
                             Console.BackgroundColor = ConsoleColor.DarkCyan;
-                            Console.WriteLine(message);
+                            Console.WriteLine(message.Replace(CommandDelimiter, ' '));
                             Console.BackgroundColor = ConsoleColor.Black;
-                            Synth.SpeakAsync(message);
+                            if (message.IndexOf(CommandDelimiter) >= 0)
+                            {
+                                Execute(message);
+                            }
+                            else
+                            {
+                                Speak(message);
+                            }
                         }
                     }
 
@@ -146,6 +148,27 @@
                     Console.WriteLine(ex.Message);
                 }
             }
+        }
+
+        private static void Execute(string message)
+        {
+            var cmd = message.Split(new[] { CommandDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+            if (cmd.Length > 1)
+            {
+                Process.Start(cmd.FirstOrDefault(), cmd.LastOrDefault());
+            }
+            else
+            {
+                Process.Start(cmd.FirstOrDefault());
+            }
+        }
+
+        private static void Speak(string message)
+        {
+            // var vol = Synth.Volume;
+            // Synth.Volume = 100;
+            Synth.SpeakAsync(message);
+            // Synth.Volume = vol;
         }
 
         private static void SetSpeech(SpeechSynthesizer synth)
@@ -179,7 +202,7 @@
             trayIcon.MouseClick += TrayIcon_Click;
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
             trayIcon.ContextMenuStrip.Items.AddRange(new ToolStripItem[] { new ToolStripMenuItem() });
-            trayIcon.ContextMenuStrip.Items[0].Text = "Exit";
+            trayIcon.ContextMenuStrip.Items[0].Text = "Quit";
             trayIcon.ContextMenuStrip.Items[0].Click += SmoothExit;
             trayIcon.Visible = true;
 
@@ -208,6 +231,7 @@
         {
             trayIcon.Visible = false;
             trayIcon.Dispose();
+            Synth.Dispose();
             Application.Exit();
             Environment.Exit(1);
         }
