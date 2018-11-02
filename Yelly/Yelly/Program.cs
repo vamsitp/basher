@@ -2,16 +2,31 @@
 {
     using System;
     using System.Configuration;
-    using System.Diagnostics;
+    using System.Drawing;
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Speech.Synthesis;
+    using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Forms;
     using Microsoft.Bot.Connector.DirectLine;
-    using Newtonsoft.Json;
 
     class Program
     {
+        private static readonly IntPtr ThisConsole = GetConsoleWindow();
+
+        private static int showWindow = 1;
+
+        private static NotifyIcon trayIcon;
+
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         private const string YellyStarted = "Yelly started!";
         private readonly static string BotId = ConfigurationManager.AppSettings["BotId"];
         private readonly static string DirectLineSecret = ConfigurationManager.AppSettings["DirectLineSecret"];
@@ -20,11 +35,19 @@
 
         static void Main(string[] args)
         {
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine("\n> Hi, this is Yelly!\n> Type any phrase and hit 'ENTER' to Yell\n> Press 'CTRL + C' or type 'EXIT' and hit 'ENTER' to quit\n");
-            Console.BackgroundColor = ConsoleColor.Black;
-            SetSpeech(Synth);
-            StartBotConversation().GetAwaiter().GetResult();
+            try
+            {
+                var notifyThread = new Thread(SetupMinimize);
+                notifyThread.Start();
+                ShowHelp();
+                SetSpeech(Synth);
+                ShowWindow(ThisConsole, showWindow);
+                StartBotConversation().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         private static async Task StartBotConversation()
@@ -47,10 +70,14 @@
                 string input = Console.ReadLine().Trim();
 
                 // Check to see if the user wants to exit.
-                if (input.Trim().Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     // Exit the app if the user requests it.
                     break;
+                }
+                else if (input.Equals("clear", StringComparison.OrdinalIgnoreCase) || input.Equals("cls", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.Clear();
                 }
                 else
                 {
@@ -129,6 +156,60 @@
             Enum.TryParse<VoiceAge>(ConfigurationManager.AppSettings["VoiceAge"], true, out var voiceAge);
             int.TryParse(ConfigurationManager.AppSettings["VoiceAlternate"], out var voiceAlternate);
             synth.SelectVoiceByHints(voiceGender, voiceAge, voiceAlternate, CultureInfo.GetCultureInfo(ConfigurationManager.AppSettings["CultureInfo"]));
+        }
+
+        private static void ShowHelp()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine("\n> Hi, this is Yelly!\n> Type any phrase and hit 'ENTER' to Yell\n> Press 'CTRL + C' or type 'EXIT' and hit 'ENTER' to quit\n");
+            Console.BackgroundColor = ConsoleColor.Black;
+        }
+
+        private static void SetupMinimize()
+        {
+            trayIcon = new NotifyIcon();
+            var currentAssembly = Assembly.GetExecutingAssembly();
+            var iconResourceStream = currentAssembly.GetManifestResourceStream("Yelly.Speech.ico");
+            if (iconResourceStream != null)
+            {
+                trayIcon.Icon = new Icon(iconResourceStream);
+            }
+
+            trayIcon.MouseClick += TrayIcon_Click;
+            trayIcon.ContextMenuStrip = new ContextMenuStrip();
+            trayIcon.ContextMenuStrip.Items.AddRange(new ToolStripItem[] { new ToolStripMenuItem() });
+            trayIcon.ContextMenuStrip.Items[0].Text = "Exit";
+            trayIcon.ContextMenuStrip.Items[0].Click += SmoothExit;
+            trayIcon.Visible = true;
+
+            Application.Run();
+        }
+
+        private static void TrayIcon_Click(object sender, MouseEventArgs e)
+        {
+            // reserve right click for context menu
+            if (e.Button != MouseButtons.Right)
+            {
+                if (showWindow == 0)
+                {
+                    showWindow = ++showWindow % 2;
+                }
+                else
+                {
+                    showWindow = 0;
+                }
+
+                ShowWindow(ThisConsole, showWindow);
+            }
+        }
+
+        private static void SmoothExit(object sender, EventArgs e)
+        {
+            trayIcon.Visible = false;
+            trayIcon.Dispose();
+            Application.Exit();
+            Environment.Exit(1);
         }
     }
 }

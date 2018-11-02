@@ -3,13 +3,22 @@
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputType>Exe</OutputType>
+    <ApplicationIcon>Speech.ico</ApplicationIcon>
+    <StartupObject>Yelly.Program</StartupObject>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Speech.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Speech.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
