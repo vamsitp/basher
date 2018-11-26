@@ -50,6 +50,9 @@
         [JsonProperty(PropertyName = "System.Title")]
         public string Title { get; set; }
 
+        [JsonProperty(PropertyName = "System.WorkItemType")]
+        public string WorkItemType { get; set; }
+
         [JsonProperty(PropertyName = "System.State")]
         public string State { get; set; }
 
@@ -105,8 +108,10 @@
         [JsonProperty(PropertyName = "Microsoft.VSTS.Common.Priority")]
         public int Priority { get; set; }
 
+#if WINDOWS_UWP
         [JsonIgnore]
         public int Criticality => App.Settings.CriticalityField.Equals(nameof(this.Severity), StringComparison.OrdinalIgnoreCase) ? int.Parse(this.Severity?.Split(' ').FirstOrDefault() ?? this.Priority.ToString()) : this.Priority;
+#endif
 
         [JsonProperty(PropertyName = "System.CreatedDate")]
         public DateTimeOffset CreatedDate { get; set; }
