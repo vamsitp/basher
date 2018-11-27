@@ -21,7 +21,6 @@
 
     public class Program
     {
-        private const string AliasPrefix = "@microsoft.com";
         private const string MediaType = "application/json";
         private const string DateFormat = "dd.MMM.yy";
         private const string AuthHeader = "Authorization";
@@ -30,11 +29,14 @@
         private const string IdTokenPath = ".id";
         private const char WorkItemsDelimiter = ',';
         private const char Colon = ':';
+        private const string SpacesPrefix = "         ";
         private const string wiqlQuery = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Severity], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.ResolvedBy], [Microsoft.VSTS.Common.ClosedBy], [System.CreatedBy], [System.CreatedDate], [System.ChangedBy], [System.Tags] FROM WorkItems WHERE [System.TeamProject] = '{0}' AND [System.WorkItemType] IN ('Bug', 'Task') AND [System.State] IN ('Active', 'New', 'Committed', 'To Do') AND [System.AssignedTo] = '{1}' ORDER BY [System.WorkItemType]";
 
         private static readonly string BaseUrl = $"https://{Account}.visualstudio.com/{Project}/_apis/wit";
         private static readonly string WiqlUrl = $"{BaseUrl}/wiql?api-version={ApiVersion}";
         private static readonly string WorkItemsUrl = $"{BaseUrl}/workitems?ids={{0}}&amp;fields=System.Id,System.WorkItemType,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&api-version={ApiVersion}";
+
+        private static string DefaultUserDomain => ConfigurationManager.AppSettings[nameof(DefaultUserDomain)];
 
         private static string ApiVersion => ConfigurationManager.AppSettings[nameof(ApiVersion)];
 
@@ -63,7 +65,7 @@
                 var section = config.Sections.OfType<AppSettingsSection>().FirstOrDefault();
                 var settings = section.Settings;
 
-                for (var i = 0; i < settings.AllKeys.Length - 1; i++)
+                for (var i = 0; i < settings.AllKeys.Length - 2; i++) // Only 3 values required
                 {
                     var key = settings.AllKeys[i];
                     settings[key].Value = details[i];
@@ -81,18 +83,33 @@
             {
                 foreach (var u in users)
                 {
-                    var user = u?.EndsWith(AliasPrefix, StringComparison.OrdinalIgnoreCase) == true ? u : u + AliasPrefix;
+                    var user = u?.EndsWith(DefaultUserDomain, StringComparison.OrdinalIgnoreCase) == true ? u : u + DefaultUserDomain;
                     var workItems = await GetWorkItems(user);
                     ColorConsole.WriteLine($"\n{workItems?.FirstOrDefault()?.Fields?.AssignedTo.ToUpperInvariant() ?? user.ToUpperInvariant()}: {workItems?.Count}\n".Cyan());
                     var i = 0;
                     workItems?.ForEach(wi =>
                     {
                         i++;
+                        var createdDate = wi.Fields.CreatedDate.ToString(DateFormat);
+                        var elapsed = new StringBuilder($" {createdDate} ");
+                        for (var e = 1; e < DateTimeOffset.Now.Subtract(wi.Fields.CreatedDate).Days - createdDate.Length; e++)
+                        {
+                            elapsed.Append(" ");
+                        }
+
+                        var completed = $" {wi.Fields.CompletedWork} (C) ".White().OnDarkGreen();
+                        var remaining = $" {wi.Fields.RemainingWork} (R) ".White().OnDarkRed();
+                        var original = $" {wi.Fields.OriginalEstimate} (O) ".White().OnDarkGray();
+
+                        var severity = $" {wi.Fields.Severity} ".White().OnDarkMagenta();
+                        var priority = $" P{wi.Fields.Priority} ".White().OnDarkCyan();
+
                         var index = i.ToString().PadLeft(2, '0');
-                        ColorConsole.WriteLine($"  [{index}.{wi.Fields.WorkItemType.FirstOrDefault()}] {wi.Id}: {wi.Fields.Title}");
-                        ColorConsole.WriteLine($"         S{wi.Fields.Severity} / P{wi.Fields.Priority}");
-                        ColorConsole.WriteLine($"         {wi.Fields.CreatedDate.ToString(DateFormat)}");
-                        ColorConsole.WriteLine($"         {wi.Fields.CompletedWork} (C) + {wi.Fields.RemainingWork} (R) ~ {wi.Fields.OriginalEstimate} (O)");
+                        var wiType = $"[{index}.{wi.Fields.WorkItemType.FirstOrDefault()}]";
+                        ColorConsole.WriteLine($"  ", wiType.EndsWith("B]", StringComparison.OrdinalIgnoreCase) ? wiType.Red() : wiType.DarkYellow(), $" {wi.Id}: {wi.Fields.Title}");
+                        ColorConsole.WriteLine(SpacesPrefix, elapsed.ToString().OnRed());
+                        ColorConsole.WriteLine(SpacesPrefix, severity, " / ", priority);
+                        ColorConsole.WriteLine(SpacesPrefix, completed, " + ", remaining, " / ", original);
                         Console.WriteLine();
                     });
                 }
