@@ -4,11 +4,19 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackAsTool>true</PackAsTool>
+    <IsTool>true</IsTool>
     <ToolCommandName>burner</ToolCommandName>
-    <PackageOutputPath>./packages</PackageOutputPath>
+    <PackageOutputPath>./bin</PackageOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Vamsi TP</Authors>
+    <Title>Burner</Title>
+    <PackageDescription>A fun (dotnet) tool to track Azure DevOps Tasks/Bugs by User!</PackageDescription>
+    <PackageLicenseUrl>https://github.com/vamsitp/basher/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/vamsitp/basher/tree/master/Burner</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vamsitp/basher</RepositoryUrl>
+    <PackageTags>Burndown;Tasks;Bugs;DevOps;Vsts</PackageTags>
     <Company>Microsoft</Company>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
