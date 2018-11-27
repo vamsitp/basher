@@ -1,5 +1,5 @@
 ﻿# `burner`
-> **A FUN CONSOLE TO TRACK TASKS/BUGS BY USER!**
+> **A FUN (`dotnet`) TOOL TO TRACK TASKS/BUGS BY USER!**
 
 ![Snapshot](Snapshot.png)
 
