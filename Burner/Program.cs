@@ -117,6 +117,8 @@
             else
             {
                 ColorConsole.WriteLine("\n Provide a list of aliases to track ".White().OnRed());
+                var details = Console.ReadLine().Split(' ');
+                await Execute(details);
             }
         }
 
