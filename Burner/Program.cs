@@ -52,7 +52,7 @@
             Log.Logger = new LoggerConfiguration().MinimumLevel.Warning().WriteTo.RollingFile(logPath, outputTemplate: "{Timestamp:dd-MMM-yyyy HH:mm:ss} | [{Level:u3}] {Message}{NewLine}{Exception}").Enrich.FromLogContext().CreateLogger();
             CheckSettings();
             Execute(args).GetAwaiter().GetResult();
-            Console.ReadLine();
+            Main(Console.ReadLine().Split(' '));
         }
 
         private static void CheckSettings()
