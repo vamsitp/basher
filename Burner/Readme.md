@@ -4,7 +4,7 @@
 ![Snapshot](Snapshot.png)
 
 > [dotnet global tools](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
-
+---
 ```bash
 # Publish package to nuget.org
 nuget push ./bin/burner.1.0.2.nupkg -ApiKey <key> -Source https://api.nuget.org/v3/index.json
