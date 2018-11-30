@@ -2,8 +2,6 @@
 > **A FUN (`dotnet`) TOOL TO TRACK AZURE DEVOPS TASKS/BUGS BY USER!**
 
 ![Snapshot](Snapshot.png)
-
-> [dotnet global tools](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
 ---
 ```bash
 # Publish package to nuget.org
@@ -20,3 +18,4 @@ dotnet tool install -g --add-source ./bin burner
 dotnet tool uninstall -g burner
 ```
 > **NOTE**: If the Tool is not accesible post installation, add `%USERPROFILE%\.dotnet\tools` to the PATH env-var.
+> [dotnet global tools](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
