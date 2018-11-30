@@ -19,4 +19,4 @@ dotnet tool install -g --add-source ./bin burner
 # Uninstall
 dotnet tool uninstall -g burner
 ```
-> NOTE: If the Tool is not accesible post installation, add `%USERPROFILE%\.dotnet\tools` to the PATH env-var.
+> **NOTE**: If the Tool is not accesible post installation, add `%USERPROFILE%\.dotnet\tools` to the PATH env-var.
