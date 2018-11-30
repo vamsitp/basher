@@ -17,5 +17,4 @@ dotnet tool install -g --add-source ./bin burner
 # Uninstall
 dotnet tool uninstall -g burner
 ```
-> **NOTE**: If the Tool is not accesible post installation, add `%USERPROFILE%\.dotnet\tools` to the PATH env-var.
-> [dotnet global tools](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
+> **NOTE**: If the [gobal tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools) is not accesible post installation, add `%USERPROFILE%\.dotnet\tools` to the PATH env-var.
