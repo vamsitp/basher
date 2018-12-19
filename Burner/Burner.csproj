@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/vamsitp/basher</RepositoryUrl>
     <PackageTags>Burndown;Tasks;Bugs;DevOps;Vsts</PackageTags>
     <Company>Microsoft</Company>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

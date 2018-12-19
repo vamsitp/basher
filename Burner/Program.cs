@@ -106,7 +106,7 @@
 
                         var index = i.ToString().PadLeft(2, '0');
                         var wiType = $"[{index}.{wi.Fields.WorkItemType.FirstOrDefault()}]";
-                        ColorConsole.WriteLine($"  ", wiType.EndsWith("B]", StringComparison.OrdinalIgnoreCase) ? wiType.Red() : wiType.DarkYellow(), $" {wi.Id}: {wi.Fields.Title}");
+                        ColorConsole.WriteLine($"  ", wiType.EndsWith("B]", StringComparison.OrdinalIgnoreCase) ? wiType.Red() : wiType.Yellow(), " ", $" {wi.Id} ".Black().OnWhite(), $" {wi.Fields.Title}");
                         ColorConsole.WriteLine(SpacesPrefix, elapsed.ToString().OnRed());
                         ColorConsole.WriteLine(SpacesPrefix, severity, " / ", priority);
                         ColorConsole.WriteLine(SpacesPrefix, completed, " + ", remaining, " / ", original);
