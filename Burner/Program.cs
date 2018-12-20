@@ -87,7 +87,7 @@
                     var workItems = await GetWorkItems(user);
                     var bugs = workItems?.Count(x => x.Fields.WorkItemType.Equals("Bug")).ToString();
                     var tasks = workItems?.Count(x => x.Fields.WorkItemType.Equals("Task")).ToString();
-                    ColorConsole.WriteLine($"\n{workItems?.FirstOrDefault()?.Fields?.AssignedTo.ToUpperInvariant() ?? user.ToUpperInvariant()}: {workItems?.Count}".Cyan(), " (" , $" {bugs ?? string.Empty} ".White().OnRed(), " / ", $" {tasks ?? string.Empty} ".Black().OnYellow(), ")\n");
+                    ColorConsole.WriteLine($"\n{workItems?.FirstOrDefault()?.Fields?.AssignedTo.ToUpperInvariant() ?? user.ToUpperInvariant()}: {workItems?.Count}".Cyan(), " (" , $" {bugs ?? string.Empty} ".White().OnRed(), "+", $" {tasks ?? string.Empty} ".Black().OnYellow(), ")\n");
                     var i = 0;
                     workItems?.ForEach(wi =>
                     {
