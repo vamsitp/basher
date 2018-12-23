@@ -154,6 +154,38 @@
         public int EventId { get; set; }
     }
 
+    public class AzureDevOpsUsers
+    {
+        [JsonProperty(PropertyName = "count")]
+        public int Count { get; set; }
+
+        [JsonProperty(PropertyName = "value")]
+        public AzureDevOpsUser[] Items { get; set; }
+    }
+
+    public class AzureDevOpsUser
+    {
+        [JsonProperty(PropertyName = "subjectKind")]
+        public string SubjectKind { get; set; }
+
+        [JsonProperty(PropertyName = "metaType")]
+        public string MetaType { get; set; }
+
+        [JsonProperty(PropertyName = "domain")]
+        public string Domain { get; set; }
+
+        [JsonProperty(PropertyName = "principalName")]
+        public string PrincipalName { get; set; }
+
+        [JsonProperty(PropertyName = "mailAddress")]
+        public string MailAddress { get; set; }
+
+        [JsonProperty(PropertyName = "displayName")]
+        public string DisplayName { get; set; }
+
+        [JsonProperty(PropertyName = "url")]
+        public string Url { get; set; }
+    }
 
     //public class BugFields
     //{

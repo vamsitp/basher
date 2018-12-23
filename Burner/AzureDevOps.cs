@@ -32,11 +32,10 @@
         private const string wiqlQuery = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Severity], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.ResolvedBy], [Microsoft.VSTS.Common.ClosedBy], [System.CreatedBy], [System.CreatedDate], [System.ChangedBy], [System.Tags] FROM WorkItems WHERE [System.TeamProject] = '{0}' AND [System.WorkItemType] IN ('Bug', 'Task') AND [System.State] IN ('Active', 'New', 'Committed', 'To Do') AND [System.AssignedTo] = '{1}' ORDER BY [System.WorkItemType]";
 
         private static readonly string BaseUrl = $"https://{Account}.visualstudio.com/{Project}/_apis/wit";
+        private static readonly string UsersUrl = $"https://vssps.dev.azure.com/{Account}/_apis/graph/users?api-version={ApiVersion}-preview";
         private static readonly string WiqlUrl = $"{BaseUrl}/wiql?api-version={ApiVersion}";
         private static readonly string WorkItemsUrl = $"{BaseUrl}/workitems?ids={{0}}&amp;fields=System.Id,System.WorkItemType,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&api-version={ApiVersion}";
         private static readonly string WorkItemUpdateUrl = $"{BaseUrl}/workItems/{{0}}?api-version={ApiVersion}";
-
-        public static string DefaultUserDomain => ConfigurationManager.AppSettings[nameof(DefaultUserDomain)];
 
         public static string Account => ConfigurationManager.AppSettings[nameof(Account)];
 
@@ -92,6 +91,32 @@
             }
 
             return workItemsList;
+        }
+
+        public static async Task<List<AzureDevOpsUser>> GetUsers()
+        {
+            var pat = GetBase64Token(Token);
+            var usersList = new List<AzureDevOpsUser>();
+            try
+            {
+                var result = await UsersUrl
+                    .WithHeader(AuthHeader, pat)
+                    .GetJsonAsync<AzureDevOpsUsers>()
+                    .ConfigureAwait(false);
+
+                usersList = result?.Items?.ToList();
+            }
+            catch (FlurlHttpException ex)
+            {
+                var vex = await ex.GetResponseJsonAsync<VstsException>();
+                LogError(ex, vex?.Message);
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, ex.Message);
+            }
+
+            return usersList;
         }
 
         public static async Task<bool> SaveWorkItemsAsync(WorkItem workItem)
