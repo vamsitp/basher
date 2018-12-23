@@ -11,7 +11,7 @@
     <Authors>Vamsi TP</Authors>
     <Title>Burner</Title>
     <PackageDescription>A fun (dotnet) tool to track Azure DevOps Tasks/Bugs by User!</PackageDescription>
-    <PackageLicenseUrl>https://github.com/vamsitp/basher/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/vamsitp/basher/tree/master/Burner</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vamsitp/basher</RepositoryUrl>
     <PackageTags>Burndown;Tasks;Bugs;DevOps;Vsts</PackageTags>
