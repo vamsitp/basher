@@ -34,7 +34,7 @@
         private static readonly string BaseUrl = $"https://{Account}.visualstudio.com/{Project}/_apis/wit";
         private static readonly string WiqlUrl = $"{BaseUrl}/wiql?api-version={ApiVersion}";
         private static readonly string WorkItemsUrl = $"{BaseUrl}/workitems?ids={{0}}&amp;fields=System.Id,System.WorkItemType,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&api-version={ApiVersion}";
-        private static readonly string WorkItemUpdateUrl = $"{BaseUrl}/wit/workItems/{{0}}?api-version={ApiVersion}";
+        private static readonly string WorkItemUpdateUrl = $"{BaseUrl}/workItems/{{0}}?api-version={ApiVersion}";
 
         public static string DefaultUserDomain => ConfigurationManager.AppSettings[nameof(DefaultUserDomain)];
 
@@ -51,7 +51,7 @@
             var pat = GetBase64Token(Token);
             var wiql = new
             {
-                query = string.Format(wiqlQuery, Project, user)
+                query = string.Format(wiqlQuery, Project.Trim(), user.Trim())
             };
 
             var workItemsList = new List<WorkItem>();

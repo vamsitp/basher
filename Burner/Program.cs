@@ -34,19 +34,24 @@
             {
                 ColorConsole.WriteLine("\n Please provide Azure DevOps details in the format (without braces): <Account> <Project> <PersonalAccessToken> ".Black().OnCyan());
                 var details = Console.ReadLine().Split(' ');
-                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var section = config.Sections.OfType<AppSettingsSection>().FirstOrDefault();
-                var settings = section.Settings;
-
-                for (var i = 0; i < settings.AllKeys.Length - 2; i++) // Only 3 values required
-                {
-                    var key = settings.AllKeys[i];
-                    settings[key].Value = details[i];
-                }
-
-                config.Save(ConfigurationSaveMode.Minimal);
-                ConfigurationManager.RefreshSection(section.SectionInformation.Name);
+                SetConfig(details);
             }
+        }
+
+        private static void SetConfig(params string[] details)
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var section = config.GetSection("appSettings") as AppSettingsSection;
+            var settings = section.Settings;
+
+            for (var i = 0; i < 3; i++) // Only 3 values required (settings.AllKeys.Length - 2)
+            {
+                var key = settings.AllKeys[i];
+                settings[key].Value = details[i];
+            }
+
+            config.Save(ConfigurationSaveMode.Minimal);
+            ConfigurationManager.RefreshSection(section.SectionInformation.Name);
         }
 
         private static async Task Execute(string[] args)
@@ -54,8 +59,18 @@
             var command = Commands.AllKeys.SingleOrDefault(x => args.Length > 0 && Commands[x].StartsWith(args?.FirstOrDefault() ?? string.Empty, StringComparison.OrdinalIgnoreCase));
             if (command != null)
             {
-                var update = await AzureDevOps.SaveWorkItemsAsync(new WorkItem { Id = int.Parse(args[1]), Fields = new Fields { CompletedWork = float.Parse(args[3]), RemainingWork = float.Parse(args[5]) } });
-                ColorConsole.WriteLine(update ? $"{args[1]} updated! ".White().OnGreen() : $" Could not update {args[1]}! ".White().OnRed());
+                if (args[0].Contains("update", StringComparison.OrdinalIgnoreCase))
+                {
+                    var update = await AzureDevOps.SaveWorkItemsAsync(new WorkItem { Id = int.Parse(args[1]), Fields = new Fields { CompletedWork = float.Parse(args[3]), RemainingWork = float.Parse(args[5]) } });
+                    ColorConsole.WriteLine(update ? $"{args[1]} updated! ".Green() : $" Could not update {args[1]}! ".Red());
+                    await ReExecute();
+                }
+                else if (args[0].Contains("clear", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetConfig(string.Empty, string.Empty, string.Empty);
+                    CheckSettings();
+                    await ReExecute();
+                }
             }
             else
             {
@@ -64,7 +79,7 @@
                 {
                     foreach (var u in users)
                     {
-                        var user = u?.EndsWith(AzureDevOps.DefaultUserDomain, StringComparison.OrdinalIgnoreCase) == true ? u : u + AzureDevOps.DefaultUserDomain;
+                        var user = u?.Contains("@") == true ? u : u + AzureDevOps.DefaultUserDomain;
                         var workItems = await AzureDevOps.GetWorkItems(user);
                         var bugs = workItems?.Count(x => x.Fields.WorkItemType.Equals("Bug")).ToString();
                         var tasks = workItems?.Count(x => x.Fields.WorkItemType.Equals("Task")).ToString();
@@ -99,11 +114,16 @@
                 }
                 else
                 {
-                    ColorConsole.WriteLine("\n Provide a list of aliases to track or a Command to execute ".White().OnRed());
-                    var details = Console.ReadLine().Split(' ');
-                    await Execute(details);
+                    await ReExecute();
                 }
             }
+        }
+
+        private static Task ReExecute()
+        {
+            ColorConsole.WriteLine("\n Provide a list of aliases to track or a Command to execute ".White().OnRed());
+            var details = Console.ReadLine().Split(' ');
+            return Execute(details);
         }
     }
 }
