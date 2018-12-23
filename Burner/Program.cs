@@ -31,12 +31,12 @@
             while (true)
             {
                 var result = Parser.Default
-                            .ParseArguments<SetupOptions, UserAssignmentOptions, UpdateItemOptions, ClearSettingsOptions>(args)
+                            .ParseArguments<AddAccountOptions, UserAssignmentOptions, UpdateItemOptions, ClearSettingsOptions>(args)
                             .MapResult(
-                            (SetupOptions opts) => SetConfig(opts.Account, opts.Project, opts.Token),
+                            (AddAccountOptions opts) => AddAccount(opts.Account, opts.Project, opts.Token),
                             (UserAssignmentOptions opts) => GetUserAssignments(opts.Users).GetAwaiter().GetResult(),
                             (UpdateItemOptions opts) => UpdateItem(opts.Id, opts.CompletedWork, opts.RemainingWork).GetAwaiter().GetResult(),
-                            (ClearSettingsOptions opts) => SetConfig(string.Empty, string.Empty, string.Empty),
+                            (ClearSettingsOptions opts) => AddAccount(opts.Account, opts.Project, string.Empty),
                             errs => HandleParseErrors(errs?.ToList()));
 
                 Log.Information("Result: " + result);
@@ -121,9 +121,9 @@
                 ColorConsole.WriteLine("\n Please provide Azure DevOps details using the 'setup' option".Black().OnCyan());
                 var details = Console.ReadLine().Split(' ');
                 Parser.Default
-                            .ParseArguments<SetupOptions>(details)
+                            .ParseArguments<AddAccountOptions>(details)
                             .MapResult(
-                            (SetupOptions opts) => SetConfig(opts.Account, opts.Project, opts.Token),
+                            (AddAccountOptions opts) => AddAccount(opts.Account, opts.Project, opts.Token),
                             errs => HandleParseErrors(errs?.ToList()));
             }
 
@@ -133,20 +133,36 @@
             }
         }
 
-        private static int SetConfig(params string[] details)
+        private static int AddAccount(string account, string project, string token)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            var section = config.GetSection("appSettings") as AppSettingsSection;
+            var section = config.GetSection("accounts") as AppSettingsSection;
             var settings = section.Settings;
-
-            for (var i = 0; i < 3; i++) // Only 3 values required (settings.AllKeys.Length - 1)
+            var key = account + "^" + project;
+            if (key.Equals("^"))
             {
-                var key = settings.AllKeys[i];
-                settings[key].Value = details[i];
+                settings.Clear();
+            }
+            else if (settings.AllKeys.Contains(key))
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    settings.Remove(key);
+                }
+                else
+                {
+                    settings[key].Value = token;
+                }
+            }
+            else
+            {
+                settings.Add(key, token);
             }
 
-            config.Save(ConfigurationSaveMode.Minimal);
+            config.AppSettings.Settings[nameof(AzureDevOps.DefaultAccount)].Value = key;
+            config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection(section.SectionInformation.Name);
+            ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
             Users = null;
             return 0;
         }

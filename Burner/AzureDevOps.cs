@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Configuration;
     using System.Globalization;
     using System.Linq;
@@ -31,17 +32,21 @@
         private const char Colon = ':';
         private const string wiqlQuery = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Severity], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.ResolvedBy], [Microsoft.VSTS.Common.ClosedBy], [System.CreatedBy], [System.CreatedDate], [System.ChangedBy], [System.Tags] FROM WorkItems WHERE [System.TeamProject] = '{0}' AND [System.WorkItemType] IN ('Bug', 'Task') AND [System.State] IN ('Active', 'New', 'Committed', 'To Do') AND [System.AssignedTo] = '{1}' ORDER BY [System.WorkItemType]";
 
-        private static readonly string BaseUrl = $"https://{Account}.visualstudio.com/{Project}/_apis/wit";
-        private static readonly string UsersUrl = $"https://vssps.dev.azure.com/{Account}/_apis/graph/users?api-version={ApiVersion}-preview";
-        private static readonly string WiqlUrl = $"{BaseUrl}/wiql?api-version={ApiVersion}";
-        private static readonly string WorkItemsUrl = $"{BaseUrl}/workitems?ids={{0}}&amp;fields=System.Id,System.WorkItemType,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&api-version={ApiVersion}";
-        private static readonly string WorkItemUpdateUrl = $"{BaseUrl}/workItems/{{0}}?api-version={ApiVersion}";
+        private static string BaseUrl => $"https://{Account}.visualstudio.com/{Project}/_apis/wit";
+        private static string UsersUrl => $"https://vssps.dev.azure.com/{Account}/_apis/graph/users?api-version={ApiVersion}-preview";
+        private static string WiqlUrl => $"{BaseUrl}/wiql?api-version={ApiVersion}";
+        private static string WorkItemsUrl => $"{BaseUrl}/workitems?ids={{0}}&amp;fields=System.Id,System.WorkItemType,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&api-version={ApiVersion}";
+        private static string WorkItemUpdateUrl => $"{BaseUrl}/workItems/{{0}}?api-version={ApiVersion}";
 
-        public static string Account => ConfigurationManager.AppSettings[nameof(Account)];
+        public static NameValueCollection Accounts => ConfigurationManager.GetSection("accounts") as NameValueCollection;
 
-        public static string Project => ConfigurationManager.AppSettings[nameof(Project)];
+        public static string[] DefaultAccount => ConfigurationManager.AppSettings[nameof(DefaultAccount)]?.Split('^');
 
-        public static string Token => ConfigurationManager.AppSettings[nameof(Token)];
+        public static string Account => DefaultAccount?.FirstOrDefault();
+
+        public static string Project => DefaultAccount?.LastOrDefault();
+
+        public static string Token => Accounts[ConfigurationManager.AppSettings[nameof(DefaultAccount)]];
 
         private static string ApiVersion => ConfigurationManager.AppSettings[nameof(ApiVersion)];
 

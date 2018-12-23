@@ -11,8 +11,8 @@
         ////public bool Verbose { get; set; }
     }
 
-    [Verb("setup", HelpText = "Set default Azure DevOps account (-a <accountName> -p <projectName>) -t <pat>")]
-    class SetupOptions : Options
+    [Verb("add", HelpText = "Add Azure DevOps account (-a <accountName> -p <projectName>) -t <pat>")]
+    class AddAccountOptions : Options
     {
         [Option('a', "account", Required = true, HelpText = "Azure DevOps Account/Org")]
         public string Account { get; set; }
@@ -29,7 +29,7 @@
         {
             get
             {
-                yield return new Example("\n\nSet Azure DevOps Account", new SetupOptions { Account = "vamsitp", Project = "VstsDemoGenerator", Token = "ds2f3m35a56s7i78l8w8efksjdcbsklfhwuie" });
+                yield return new Example("\n\nAdd Azure DevOps Account", new AddAccountOptions { Account = "vamsitp", Project = "VstsDemoGenerator", Token = "ds2f3m35a56s7i78l8w8efksjdcbsklfhwuie" });
             }
         }
     }
@@ -91,16 +91,22 @@
         }
     }
 
-    [Verb("clear", HelpText = "Clear account settings")]
+    [Verb("clear", HelpText = "Clear Account(s)")]
     class ClearSettingsOptions : Options
     {
+        [Option('a', "account", Default = "", Required = false, HelpText = "Azure DevOps Account/Org")]
+        public string Account { get; set; }
+
+        [Option('p', "project", Default = "", Required = false, HelpText = "Azure DevOps Project")]
+        public string Project { get; set; }
+
         [Usage(ApplicationAlias = "burner")]
 
         public static IEnumerable<Example> Examples
         {
             get
             {
-                yield return new Example("\nClear account settings", UnParserSettings.WithGroupSwitchesOnly(), new ClearSettingsOptions());
+                yield return new Example("\nClear account(s)", UnParserSettings.WithGroupSwitchesOnly(), new ClearSettingsOptions { Account = "vamsitp", Project = "VstsDemoGenerator" });
             }
         }
     }
