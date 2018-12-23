@@ -85,11 +85,6 @@
                     workItemsList = workItems?.Items?.ToList();
                 }
             }
-            catch (FlurlHttpException ex)
-            {
-                var vex = await ex.GetResponseJsonAsync<VstsException>();
-                LogError(ex, vex?.Message);
-            }
             catch (Exception ex)
             {
                 LogError(ex, ex.Message);
@@ -110,11 +105,6 @@
                     .ConfigureAwait(false);
 
                 usersList = result?.Items?.ToList();
-            }
-            catch (FlurlHttpException ex)
-            {
-                var vex = await ex.GetResponseJsonAsync<VstsException>();
-                LogError(ex, vex?.Message);
             }
             catch (Exception ex)
             {
@@ -156,7 +146,7 @@
             var fex = ex as FlurlHttpException;
             if (fex != null)
             {
-                var vex = fex.GetResponseJsonAsync<VstsException>().GetAwaiter().GetResult();
+                var vex = fex.GetResponseJsonAsync<VstsException>()?.GetAwaiter().GetResult();
                 message = vex?.Message ?? ex.Message;
             }
 

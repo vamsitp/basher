@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.Configuration;
     using System.IO;
     using System.Linq;
@@ -31,16 +30,17 @@
             while (true)
             {
                 var result = Parser.Default
-                            .ParseArguments<AddAccountOptions, UserAssignmentOptions, UpdateItemOptions, ClearSettingsOptions>(args)
+                            .ParseArguments<AddAccountOptions, UserAssignmentOptions, UpdateItemOptions, DefaultAccountOptions, ClearSettingsOptions >(args)
                             .MapResult(
                             (AddAccountOptions opts) => AddAccount(opts.Account, opts.Project, opts.Token),
                             (UserAssignmentOptions opts) => GetUserAssignments(opts.Users).GetAwaiter().GetResult(),
                             (UpdateItemOptions opts) => UpdateItem(opts.Id, opts.CompletedWork, opts.RemainingWork).GetAwaiter().GetResult(),
+                            (DefaultAccountOptions opts) => SetDefault(opts.Account, opts.Project),
                             (ClearSettingsOptions opts) => AddAccount(opts.Account, opts.Project, string.Empty),
                             errs => HandleParseErrors(errs?.ToList()));
 
                 Log.Information("Result: " + result);
-                args = Console.ReadLine().Trim().Split(' ');
+                args = Console.ReadLine()?.Trim()?.Split(' ');
             }
         }
 
@@ -133,6 +133,32 @@
             }
         }
 
+        private static int SetDefault(string account, string project)
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var section = config.GetSection("accounts") as AppSettingsSection;
+            var settings = section.Settings;
+            var key = account + "^" + project;
+            var current = config.AppSettings.Settings[nameof(AzureDevOps.DefaultAccount)].Value;
+            if (current.Equals(key, StringComparison.OrdinalIgnoreCase))
+            {
+                LogMessage("Default already set!");
+                return 0;
+            }
+            else if (settings.AllKeys.Contains(key))
+            {
+                config.AppSettings.Settings[nameof(AzureDevOps.DefaultAccount)].Value = key;
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
+                Users = null;
+                LogMessage("Default set!");
+                return 0;
+            }
+
+            Log.Warning("Please 'add' the Account/Project first to set as Default!");
+            return -1;
+        }
+
         private static int AddAccount(string account, string project, string token)
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -142,21 +168,25 @@
             if (key.Equals("^"))
             {
                 settings.Clear();
+                LogMessage("Accounts cleared!");
             }
             else if (settings.AllKeys.Contains(key))
             {
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     settings.Remove(key);
+                    LogMessage("Account removed!");
                 }
                 else
                 {
                     settings[key].Value = token;
+                    LogMessage("Account updated!");
                 }
             }
             else
             {
                 settings.Add(key, token);
+                LogMessage("Accounts added!");
             }
 
             config.AppSettings.Settings[nameof(AzureDevOps.DefaultAccount)].Value = key;
@@ -165,6 +195,12 @@
             ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
             Users = null;
             return 0;
+        }
+
+        private static void LogMessage(string message)
+        {
+            Log.Information(message);
+            ColorConsole.WriteLine(message.Green());
         }
     }
 }

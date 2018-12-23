@@ -91,6 +91,26 @@
         }
     }
 
+    [Verb("default", HelpText = "Set Default Account")]
+    class DefaultAccountOptions : Options
+    {
+        [Option('a', "account", Default = "", Required = false, HelpText = "Azure DevOps Account/Org")]
+        public string Account { get; set; }
+
+        [Option('p', "project", Default = "", Required = false, HelpText = "Azure DevOps Project")]
+        public string Project { get; set; }
+
+        [Usage(ApplicationAlias = "burner")]
+
+        public static IEnumerable<Example> Examples
+        {
+            get
+            {
+                yield return new Example("\nSet default account(s)", UnParserSettings.WithGroupSwitchesOnly(), new DefaultAccountOptions { Account = "vamsitp", Project = "VstsDemoGenerator" });
+            }
+        }
+    }
+
     [Verb("clear", HelpText = "Clear Account(s)")]
     class ClearSettingsOptions : Options
     {
