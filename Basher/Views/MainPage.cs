@@ -161,9 +161,9 @@
                     }
 
                     var prevState = itemControl.WorkItem;
-                    if (item.Fields.State == "Resolved" || item.Fields.State == "Closed") // if (i % 2 == 0)
+                    if (item.Fields.State == "Resolved" || item.Fields.State == "Committed" || item.Fields.State == "Closed" || item.Fields.State == "Done") // if (i % 2 == 0)
                     {
-                        if (item.Fields.State == "Resolved")
+                        if (item.Fields.State == "Resolved" || item.Fields.State == "Committed")
                         {
                             user = item.Fields.ResolvedBy;
                         }
@@ -180,7 +180,7 @@
                         if (!user.Equals(prevState.Fields.AssignedToFullName))
                         {
                             itemControl.SetText(item.GetText());
-                            await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT ASSIGNED!\n({item.Fields.ChangedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "kidding", $"{item.Fields.AssignedTo} has an assigned {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
+                            await this.PopUp(this.AssignedPopup, this.AssignedPopupText, item.Fields.AssignedTo.ToUpperInvariant() + $" HAS A GIFT ASSIGNED!\n({item.Fields.ChangedBy}: {criticalitySuffix}{item.Fields.Criticality} - {item.Id})", "kidding", $"{item.Fields.AssignedTo} has a {criticalitySuffix}{item.Fields.Criticality} gift: {item.Id}", loading);
                         }
 
                         if (item.Fields.Severity != null && !item.Fields.Severity.Equals(prevState.Fields.Severity))
@@ -197,7 +197,7 @@
                 }
                 else
                 {
-                    if (item.Fields.State != "Resolved" && item.Fields.State != "Closed")
+                    if (item.Fields.State != "Resolved" && item.Fields.State != "Committed" && item.Fields.State != "Closed" && item.Fields.State != "Done")
                     {
                         if (!this.ViewModel.Colors.ContainsKey(user))
                         {
