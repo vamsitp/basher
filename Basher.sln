@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A19B1862-7BF1-4DBE-AE34-D7BBCC6BF487}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		Basher\Publish.md = Basher\Publish.md
 		README.md = README.md
 		Release.json = Release.json
 	EndProjectSection
