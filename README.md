@@ -4,7 +4,7 @@
 ![Snapshot](Snapshot.gif)
 
 #### INSTALLATION
-- Install [**`Basher.cer`**](Basher.cer) into **`Local Computer > Trusted Root ...`**
+- Install [Basher_1.1.1.0_x64.cer](https://github.com/vamsitp/basher/releases/download/1.1.1/Basher_1.1.1.0_x64.cer) ~~[**`Basher.cer`**](Basher.cer)~~ into **`Local Computer > Trusted Root ...`**
 - Download the [**`Release package`**](https://github.com/vamsitp/basher/releases) and install it from an Elevated CMD
 
 #### USAGE
