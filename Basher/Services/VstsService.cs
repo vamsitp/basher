@@ -27,8 +27,8 @@
 
         private const string Slash = "/";
         private const string WiqlUrl = "wit/wiql";
-        private const string BugsQuery = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Severity], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.ResolvedBy], [Microsoft.VSTS.Common.ClosedBy], [System.CreatedBy], [System.CreatedDate], [System.ChangedBy], [System.Tags] FROM WorkItems WHERE [System.TeamProject] = '{0}' AND [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active', 'New', 'Committed', 'Approved'){1}ORDER BY [System.AssignedTo]";
-        private const string UserStoriesQuery = @"SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [System.Tags], [System.IterationPath], [Microsoft.VSTS.Scheduling.OriginalEstimate], [Microsoft.VSTS.Scheduling.RemainingWork], [Microsoft.VSTS.Scheduling.CompletedWork], [Microsoft.VSTS.Scheduling.StoryPoints] FROM WorkItemLinks WHERE ([Source].[System.TeamProject] = 'TMHGTelematics'  AND  [Source].[System.WorkItemType] = 'User Story'  AND  [Source].[System.State] = 'Committed') And ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward') And ([Target].[System.WorkItemType] = 'Task') ORDER BY [System.Id] mode(Recursive)";
+        private const string BugsQuery = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Severity], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.ResolvedBy], [Microsoft.VSTS.Common.ClosedBy], [System.CreatedBy], [System.CreatedDate], [System.ChangedBy], [System.Tags] FROM WorkItems WHERE [System.TeamProject] = '{0}' AND [System.WorkItemType] IN ('Bug', 'Issue') AND [System.State] IN ('Active', 'New', 'Committed', 'Approved'){1}ORDER BY [System.AssignedTo]";
+        private const string UserStoriesQuery = @"SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [System.Tags], [System.IterationPath], [Microsoft.VSTS.Scheduling.OriginalEstimate], [Microsoft.VSTS.Scheduling.RemainingWork], [Microsoft.VSTS.Scheduling.CompletedWork], [Microsoft.VSTS.Scheduling.StoryPoints] FROM WorkItemLinks WHERE ([Source].[System.TeamProject] = '{0}' AND [Source].[System.WorkItemType] IN ('User Story', 'Product Backlog Item') AND [Source].[System.State] IN ('Active', 'Committed')) AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward') AND ([Target].[System.WorkItemType] = 'Task') ORDER BY [System.Id] mode(Recursive)";
         private const string WorkItemsUrl = @"wit/workitems?ids={0}&amp;fields=System.Id,System.Title,System.AssignedTo,System.State,System.IterationPath,Microsoft.VSTS.Common.Severity,Microsoft.VSTS.Common.Priority,Microsoft.VSTS.Common.ResolvedBy,Microsoft.VSTS.Common.ClosedBy,System.CreatedBy,System.ChangedBy,System.CreatedDate&";
 
         public async Task<IList<WorkItem>> GetBugs(List<int> currentBugIds)
@@ -102,7 +102,7 @@
                 var response = result?.SelectTokens(".workItemRelations").Values<JObject>()?.ToList();
                 if (response != null)
                 {
-                    var userStoryIds = response.Where(x => x.SelectToken(".source.id") == null).Select(x => x.SelectToken(".target.id").Value<int>());
+                    var userStoryIds = response.Select(x => x.SelectToken("..target.id").Value<int>()); // response.Where(x => x.SelectToken(".source.id") == null).Select(x => x.SelectToken(".target.id").Value<int>());
                     if (currentUserStoryIds?.Count > 0 && userStoryIds != null)
                     {
                         userStoryIds = userStoryIds.Union(currentUserStoryIds);

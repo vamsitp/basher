@@ -123,7 +123,7 @@
                     new Op { op = "add", path = "/fields/Microsoft.VSTS.Scheduling.RemainingWork", value = workItem.Fields.RemainingWork }
                 }.ToList();
 
-            var content = new CapturedStringContent(ops?.ToJson(), Encoding.UTF8, "application/json-patch+json");
+            var content = new CapturedStringContent(ops?.ToJson(), "application/json-patch+json");
             try
             {
                 var result = await string.Format(CultureInfo.InvariantCulture, WorkItemUpdateUrl, workItem.Id)
@@ -131,7 +131,7 @@
                             .PatchAsync(content)
                             .ConfigureAwait(false);
 
-                var success = result.StatusCode == System.Net.HttpStatusCode.OK;
+                var success = result.StatusCode == (int)System.Net.HttpStatusCode.OK;
                 return success;
             }
             catch (Exception ex)
